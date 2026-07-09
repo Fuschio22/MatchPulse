@@ -1,57 +1,134 @@
-const minute=document.getElementById("minute");
-const score=document.getElementById("score");
-const event=document.getElementById("event");
+const homeScore = document.getElementById("homeScore");
+const awayScore = document.getElementById("awayScore");
+const minute = document.getElementById("minute");
+const eventText = document.getElementById("eventText");
 
-const timeline=[
+const popup = document.getElementById("popup");
+const popupScore = document.querySelector(".popup-score");
+const popupEvent = document.querySelector(".popup-event");
 
-{
-minute:"22'",
-score:"0 - 0",
-event:"Partita equilibrata"
-},
+const followButton = document.getElementById("followButton");
 
-{
-minute:"34'",
-score:"1 - 0",
-event:"⚽ Mbappé porta avanti la Francia"
-},
+let following = false;
 
-{
-minute:"45+2'",
-score:"1 - 0",
-event:"⏸ Intervallo"
-},
+followButton.addEventListener("click", () => {
 
-{
-minute:"62'",
-score:"1 - 0",
-event:"🟨 Cartellino per Hakimi"
-},
+    following = !following;
 
-{
-minute:"74'",
-score:"2 - 0",
-event:"⚽ Dembélé raddoppia"
-},
+    if (following) {
 
-{
-minute:"90+4'",
-score:"2 - 1",
-event:"🏁 Fine partita"
+        followButton.textContent = "⭐ Partita seguita";
+        followButton.style.background = "#16a34a";
+
+    } else {
+
+        followButton.textContent = "⭐ Segui questa partita";
+        followButton.style.background = "#2d7cff";
+
+    }
+
+});
+
+function showPopup(score, event) {
+
+    popup.classList.add("show");
+
+    popupScore.textContent = score;
+    popupEvent.textContent = event;
+
+    setTimeout(() => {
+
+        popup.classList.remove("show");
+
+    }, 5000);
+
 }
+
+const timeline = [
+
+    {
+        minute: "Pre-Partita",
+        home: 0,
+        away: 0,
+        event: "Le squadre stanno entrando in campo."
+    },
+
+    {
+        minute: "1'",
+        home: 0,
+        away: 0,
+        event: "⚽ Calcio d'inizio!"
+    },
+
+    {
+        minute: "23'",
+        home: 1,
+        away: 0,
+        event: "⚽ GOL FRANCIA - Mbappé"
+    },
+
+    {
+        minute: "45+2'",
+        home: 1,
+        away: 0,
+        event: "⏸ Fine primo tempo"
+    },
+
+    {
+        minute: "61'",
+        home: 1,
+        away: 0,
+        event: "🟨 Ammonito Hakimi"
+    },
+
+    {
+        minute: "74'",
+        home: 2,
+        away: 0,
+        event: "⚽ GOL FRANCIA - Dembélé"
+    },
+
+    {
+        minute: "89'",
+        home: 2,
+        away: 1,
+        event: "⚽ GOL MAROCCO - En-Nesyri"
+    },
+
+    {
+        minute: "90+5'",
+        home: 2,
+        away: 1,
+        event: "🏁 FINE PARTITA"
+    }
 
 ];
 
-let i=0;
+let index = 0;
 
-setInterval(()=>{
+function updateMatch() {
 
-if(i>=timeline.length)return;
+    if (index >= timeline.length)
+        return;
 
-minute.textContent=timeline[i].minute;
-score.textContent=timeline[i].score;
-event.textContent=timeline[i].event;
+    const item = timeline[index];
 
-i++;
+    homeScore.textContent = item.home;
+    awayScore.textContent = item.away;
 
-},5000);
+    minute.textContent = item.minute;
+
+    eventText.textContent = item.event;
+
+    showPopup(
+        `Francia ${item.home} - ${item.away} Marocco`,
+        item.event
+    );
+
+    index++;
+
+}
+
+updateMatch();
+
+setInterval(updateMatch, 6000);
