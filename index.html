@@ -1,155 +1,184 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MatchPulse">
+    <meta name="description" content="MatchPulse - Live Sports Scores & Updates">
+    
     <title>MatchPulse</title>
-
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" stroke="url(#gradient)" stroke-width="2"/>
+                        <path d="M16 8L20 16L16 24L12 16L16 8Z" fill="url(#gradient)"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7b2cbf;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">MatchPulse</span>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="searchBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" id="favoritesBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
 
-    <header class="topbar">
-        <div>
-            <h1>⚽ MatchPulse</h1>
-            <p>Segui il calcio in tempo reale</p>
+        <!-- Search Modal -->
+        <div class="search-modal" id="searchModal">
+            <div class="search-modal-content">
+                <div class="search-input-wrapper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Cerca squadre, competizioni..." autocomplete="off">
+                    <button class="close-btn" id="closeSearch">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6 6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="search-results" id="searchResults"></div>
+            </div>
         </div>
 
-        <button class="settings-btn">⚙️</button>
-    </header>
-
-    <main>
-
-        <!-- PARTITA IN EVIDENZA -->
-
-        <section class="featured-card">
-
-            <div class="live-badge">
-                🔴 LIVE
-            </div>
-
-            <div class="competition">
-                Coppa del Mondo 2026
-            </div>
-
-            <div class="teams">
-
-                <div class="team">
-
-                    <img src="https://flagcdn.com/w160/fr.png">
-
-                    <span>Francia</span>
-
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Featured Match -->
+            <section class="featured-match" id="featuredMatch">
+                <div class="section-header">
+                    <h2>Partita in Evidenza</h2>
+                    <button class="pin-btn" id="pinFeaturedBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M2 12h20"/>
+                        </svg>
+                    </button>
                 </div>
-
-                <div class="score">
-
-                    <span id="homeScore">0</span>
-
-                    <small>-</small>
-
-                    <span id="awayScore">0</span>
-
+                <div class="featured-card" id="featuredCard">
+                    <!-- Populated by JS -->
                 </div>
+            </section>
 
-                <div class="team">
-
-                    <img src="https://flagcdn.com/w160/ma.png">
-
-                    <span>Marocco</span>
-
+            <!-- Live Matches -->
+            <section class="matches-section">
+                <div class="section-header">
+                    <h2>Live Ora</h2>
+                    <span class="live-indicator">
+                        <span class="live-dot"></span>
+                        LIVE
+                    </span>
                 </div>
+                <div class="matches-grid" id="liveMatches">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
 
+            <!-- Today's Matches -->
+            <section class="matches-section">
+                <div class="section-header">
+                    <h2>Oggi</h2>
+                </div>
+                <div class="matches-grid" id="todayMatches">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Competitions -->
+            <section class="competitions-section">
+                <div class="section-header">
+                    <h2>Competizioni</h2>
+                </div>
+                <div class="competitions-grid" id="competitionsGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Favorites -->
+            <section class="favorites-section" id="favoritesSection">
+                <div class="section-header">
+                    <h2>I Tuoi Preferiti</h2>
+                </div>
+                <div class="favorites-list" id="favoritesList">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Match Center -->
+        <div class="match-center" id="matchCenter">
+            <div class="match-center-header">
+                <button class="back-btn" id="backBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </button>
+                <h2>Match Center</h2>
+                <button class="icon-btn" id="followBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </button>
             </div>
-
-            <div class="minute">
-
-                <span id="minute">
-                    Pre-Partita
-                </span>
-
+            <div class="match-center-content" id="matchCenterContent">
+                <!-- Populated by JS -->
             </div>
-
-            <div class="event">
-
-                <span id="eventText">
-
-                    In attesa del calcio d'inizio...
-
-                </span>
-
-            </div>
-
-            <button id="followButton">
-
-                ⭐ Segui questa partita
-
-            </button>
-
-        </section>
-
-        <!-- LIVE -->
-
-        <section class="list">
-
-            <h2>🔥 Live ora</h2>
-
-            <div class="match-row">
-
-                <span>🇪🇸 Spagna</span>
-
-                <span>21:00</span>
-
-                <span>🇧🇪 Belgio</span>
-
-            </div>
-
-            <div class="match-row">
-
-                <span>🏴 Inghilterra</span>
-
-                <span>23:00</span>
-
-                <span>🇳🇴 Norvegia</span>
-
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- POPUP -->
-
-    <div id="popup">
-
-        <div class="popup-content">
-
-            <div class="popup-live">
-
-                🔴 LIVE
-
-            </div>
-
-            <div class="popup-score">
-
-                Francia 0 - 0 Marocco
-
-            </div>
-
-            <div class="popup-event">
-
-                Nessun evento
-
-            </div>
-
         </div>
 
+        <!-- Live Popup -->
+        <div class="live-popup" id="livePopup">
+            <div class="popup-header">
+                <div class="popup-title">
+                    <span class="live-dot"></span>
+                    <span id="popupTitle">Evento Live</span>
+                </div>
+                <div class="popup-actions">
+                    <button class="popup-btn" id="minimizePopup">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"/>
+                        </svg>
+                    </button>
+                    <button class="popup-btn" id="closePopup">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6 6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="popup-content" id="popupContent">
+                <!-- Populated by JS -->
+            </div>
+        </div>
     </div>
 
-    <script src="js/script.js"></script>
-
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/popup.js"></script>
+    <script src="js/app.js"></script>
 </body>
-
 </html>
