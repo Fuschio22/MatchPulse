@@ -5,17 +5,12 @@
  */
 
 const MatchPulseAPI = (() => {
-    // Base URL for API (can be changed for different providers)
     const API_BASE_URL = 'https://api.football-data.org/v4';
-    const API_KEY = ''; // Add your API key here
+    const API_KEY = '';
     
-    // Cache for API responses
     const cache = new Map();
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    const CACHE_DURATION = 5 * 60 * 1000;
     
-    /**
-     * Fetch data from API with caching
-     */
     async function fetchData(endpoint, options = {}) {
         const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
         const cached = cache.get(cacheKey);
@@ -46,11 +41,7 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    /**
-     * Get all competitions
-     */
     async function getCompetitions() {
-        // Mock data for demo - replace with actual API call
         return [
             { id: 'SA', name: 'Serie A', country: 'Italy', logo: '🇮🇹' },
             { id: 'PL', name: 'Premier League', country: 'England', logo: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
@@ -61,11 +52,7 @@ const MatchPulseAPI = (() => {
         ];
     }
     
-    /**
-     * Get live matches
-     */
     async function getLiveMatches() {
-        // Mock data for demo
         return [
             {
                 id: 'match-1',
@@ -92,11 +79,7 @@ const MatchPulseAPI = (() => {
         ];
     }
     
-    /**
-     * Get today's matches
-     */
     async function getTodayMatches() {
-        // Mock data for demo
         return [
             {
                 id: 'match-3',
@@ -121,19 +104,12 @@ const MatchPulseAPI = (() => {
         ];
     }
     
-    /**
-     * Get featured match
-     */
     async function getFeaturedMatch() {
         const liveMatches = await getLiveMatches();
         return liveMatches[0] || null;
     }
     
-    /**
-     * Get match details
-     */
     async function getMatchDetails(matchId) {
-        // Mock data for demo
         return {
             id: matchId,
             homeTeam: { 
@@ -150,4 +126,57 @@ const MatchPulseAPI = (() => {
                 shortName: 'MIL',
                 formation: '4-3-3',
                 lineup: ['Maignan', 'Calabria', 'Tomori', 'Kjaer', 'Theo', 'Tonali', 'Bennacer', 'Diaz', 'Saelemaekers', 'Giroud', 'Leao'],
-                subs: ['Tatarusanu', 'Kalulu', 'Origi
+                subs: ['Tatarusanu', 'Kalulu', 'Origi']
+            },
+            score: { home: 2, away: 1 },
+            status: 'LIVE',
+            minute: 67,
+            competition: 'Serie A',
+            stadium: 'San Siro',
+            referee: 'Daniele Orsato',
+            attendance: 75000,
+            events: [
+                { minute: 15, type: 'goal', player: 'Lautaro Martinez', team: 'home', assist: 'Barella' },
+                { minute: 32, type: 'goal', player: 'Leao', team: 'away', assist: 'Theo' },
+                { minute: 45, type: 'yellow', player: 'Tonali', team: 'away' },
+                { minute: 58, type: 'substitution', playerIn: 'Correa', playerOut: 'Dzeko', team: 'home' },
+                { minute: 67, type: 'goal', player: 'Barella', team: 'home', assist: 'Lautaro Martinez' }
+            ],
+            stats: {
+                possession: { home: 58, away: 42 },
+                shots: { home: 12, away: 8 },
+                shotsOnTarget: { home: 6, away: 3 },
+                corners: { home: 5, away: 2 },
+                fouls: { home: 8, away: 11 },
+                yellowCards: { home: 1, away: 2 },
+                redCards: { home: 0, away: 0 }
+            }
+        };
+    }
+    
+    async function searchTeams(query) {
+        const allTeams = [
+            { id: 'inter', name: 'Inter', logo: '⚫', competition: 'Serie A' },
+            { id: 'milan', name: 'Milan', logo: '🔴', competition: 'Serie A' },
+            { id: 'juventus', name: 'Juventus', logo: '⚪', competition: 'Serie A' },
+            { id: 'roma', name: 'Roma', logo: '🟡', competition: 'Serie A' },
+            { id: 'napoli', name: 'Napoli', logo: '🔵', competition: 'Serie A' },
+            { id: 'lazio', name: 'Lazio', logo: '🦅', competition: 'Serie A' },
+            { id: 'atalanta', name: 'Atalanta', logo: '⚡', competition: 'Serie A' },
+            { id: 'fiorentina', name: 'Fiorentina', logo: '🟣', competition: 'Serie A' }
+        ];
+        
+        return allTeams.filter(team => 
+            team.name.toLowerCase().includes(query.toLowerCase())
+        );
+    }
+    
+    return {
+        getCompetitions,
+        getLiveMatches,
+        getTodayMatches,
+        getFeaturedMatch,
+        getMatchDetails,
+        searchTeams
+    };
+})();
