@@ -5,13 +5,10 @@
 
 const MatchPulseAPI = (() => {
     const API_BASE_URL = 'https://api.football-data.org/v4';
-    const API_KEY = 'cdd1a87ea50a411880249e70138e0233'; // La tua API key
+    const API_KEY = 'cdd1a87ea50a411880249e70138e0233';
     
     const cache = new Map();
-    const CACHE_DURATION = 30 * 1000; // 30 secondi (piano free: 10 req/min)
-    
-    // ID della Coppa del Mondo FIFA 2026 (da verificare)
-    const WORLD_CUP_ID = 2018; // Questo è un esempio, dobbiamo trovare l'ID corretto
+    const CACHE_DURATION = 30 * 1000;
     
     async function fetchData(endpoint, options = {}) {
         const cacheKey = endpoint + '_' + JSON.stringify(options);
@@ -30,7 +27,7 @@ const MatchPulseAPI = (() => {
             });
             
             if (!response.ok) {
-                throw new Error('API Error: ' + response.status + ' - ' + response.statusText);
+                throw new Error('API Error: ' + response.status);
             }
             
             const data = await response.json();
@@ -42,7 +39,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Ottieni tutte le competizioni disponibili
     async function getCompetitions() {
         try {
             const data = await fetchData('/competitions');
@@ -58,7 +54,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Ottieni partite live
     async function getLiveMatches() {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -92,7 +87,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Ottieni partite di oggi
     async function getTodayMatches() {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -122,7 +116,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Cerca partita specifica (Norvegia vs Inghilterra)
     async function findSpecificMatch(homeTeam, awayTeam) {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -144,7 +137,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Ottieni dettagli partita
     async function getMatchDetails(matchId) {
         try {
             const data = await fetchData('/matches/' + matchId);
@@ -155,7 +147,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Formatta dati partita
     function formatMatchData(match) {
         return {
             id: match.id,
@@ -198,7 +189,6 @@ const MatchPulseAPI = (() => {
         };
     }
     
-    // Cerca squadre
     async function searchTeams(query) {
         try {
             const data = await fetchData('/teams?name=' + encodeURIComponent(query));
@@ -214,7 +204,6 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // Helper: Ottieni ultimo evento
     function getLastEvent(match) {
         if (match.goals && match.goals.length > 0) {
             const lastGoal = match.goals[match.goals.length - 1];
@@ -223,28 +212,26 @@ const MatchPulseAPI = (() => {
         return 'Nessun evento recente';
     }
     
-    // Helper: Logo squadra (emoji placeholder)
     function getTeamLogo(shortName) {
         const logos = {
             'NOR': '🇳🇴',
-            'ENG': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-            'ITA': '🇮🇹',
+            'ENG': '🇬🇧',
+            'ITA': '🇮',
             'ESP': '🇪🇸',
             'GER': '🇩🇪',
             'FRA': '🇫🇷',
             'BRA': '🇧🇷',
-            'ARG': '🇦🇷'
+            'ARG': '🇦'
         };
         return logos[shortName] || '⚽';
     }
     
-    // Helper: Logo competizione
     function getCompetitionLogo(code) {
         const logos = {
             'WC': '🏆',
             'EC': '🏆',
-            'PL': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-            'SA': '🇮🇹',
+            'PL': '🇬🇧',
+            'SA': '🇮',
             'PD': '🇪🇸',
             'BL1': '🇩🇪',
             'FL1': '🇫🇷',
@@ -254,14 +241,13 @@ const MatchPulseAPI = (() => {
         return logos[code] || '🏆';
     }
     
-    // Mock data (fallback se API non funziona)
     function getMockCompetitions() {
         return [
             { id: 'SA', name: 'Serie A', country: 'Italy', logo: '🇮🇹' },
-            { id: 'PL', name: 'Premier League', country: 'England', logo: '🇬🇧' },
+            { id: 'PL', name: 'Premier League', country: 'England', logo: '🇬' },
             { id: 'CL', name: 'Champions League', country: 'Europe', logo: '🏆' },
             { id: 'EL', name: 'Europa League', country: 'Europe', logo: '🥈' },
-            { id: 'WC', name: 'Mondiale', country: 'World', logo: '🌍' },
+            { id: 'WC', name: 'Mondiale', country: 'World', logo: '' },
             { id: 'CI', name: 'Coppa Italia', country: 'Italy', logo: '🏆' }
         ];
     }
