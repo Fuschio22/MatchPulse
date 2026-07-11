@@ -1,7 +1,5 @@
 /**
  * MatchPulse Main App Module
- * Initializes the application and coordinates all modules
- * Integrates with football-data.org API for live match data
  */
 
 const MatchPulseApp = (() => {
