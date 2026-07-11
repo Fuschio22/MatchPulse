@@ -214,41 +214,41 @@ const MatchPulseAPI = (() => {
     
     function getTeamLogo(shortName) {
         const logos = {
-            'NOR': '🇳🇴',
-            'ENG': '🇬🇧',
-            'ITA': '🇮',
-            'ESP': '🇪🇸',
-            'GER': '🇩🇪',
-            'FRA': '🇫🇷',
-            'BRA': '🇧🇷',
-            'ARG': '🇦'
+            'NOR': '\u{1F1F3}\u{1F1F4}',
+            'ENG': '\u{1F1EC}\u{1F1E7}',
+            'ITA': '\u{1F1EE}\u{1F1F9}',
+            'ESP': '\u{1F1EA}\u{1F1F8}',
+            'GER': '\u{1F1E9}\u{1F1EA}',
+            'FRA': '\u{1F1EB}\u{1F1F7}',
+            'BRA': '\u{1F1E7}\u{1F1F7}',
+            'ARG': '\u{1F1E6}\u{1F1F7}'
         };
-        return logos[shortName] || '⚽';
+        return logos[shortName] || '\u26BD';
     }
     
     function getCompetitionLogo(code) {
         const logos = {
-            'WC': '🏆',
-            'EC': '🏆',
-            'PL': '🇬🇧',
-            'SA': '🇮',
-            'PD': '🇪🇸',
-            'BL1': '🇩🇪',
-            'FL1': '🇫🇷',
-            'CL': '🏆',
-            'EL': '🥈'
+            'WC': '\u{1F3C6}',
+            'EC': '\u{1F3C6}',
+            'PL': '\u{1F1EC}\u{1F1E7}',
+            'SA': '\u{1F1EE}\u{1F1F9}',
+            'PD': '\u{1F1EA}\u{1F1F8}',
+            'BL1': '\u{1F1E9}\u{1F1EA}',
+            'FL1': '\u{1F1EB}\u{1F1F7}',
+            'CL': '\u{1F3C6}',
+            'EL': '\u{1F948}'
         };
-        return logos[code] || '🏆';
+        return logos[code] || '\u{1F3C6}';
     }
     
     function getMockCompetitions() {
         return [
-            { id: 'SA', name: 'Serie A', country: 'Italy', logo: '🇮🇹' },
-            { id: 'PL', name: 'Premier League', country: 'England', logo: '🇬' },
-            { id: 'CL', name: 'Champions League', country: 'Europe', logo: '🏆' },
-            { id: 'EL', name: 'Europa League', country: 'Europe', logo: '🥈' },
-            { id: 'WC', name: 'Mondiale', country: 'World', logo: '' },
-            { id: 'CI', name: 'Coppa Italia', country: 'Italy', logo: '🏆' }
+            { id: 'SA', name: 'Serie A', country: 'Italy', logo: '\u{1F1EE}\u{1F1F9}' },
+            { id: 'PL', name: 'Premier League', country: 'England', logo: '\u{1F1EC}\u{1F1E7}' },
+            { id: 'CL', name: 'Champions League', country: 'Europe', logo: '\u{1F3C6}' },
+            { id: 'EL', name: 'Europa League', country: 'Europe', logo: '\u{1F948}' },
+            { id: 'WC', name: 'Mondiale', country: 'World', logo: '\u{1F30D}' },
+            { id: 'CI', name: 'Coppa Italia', country: 'Italy', logo: '\u{1F3C6}' }
         ];
     }
     
