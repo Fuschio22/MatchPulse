@@ -6,57 +6,39 @@
 
 const MatchPulseApp = (() => {
     
-    // Stato dell'applicazione
     let currentMatchId = null;
     let featuredMatchId = null;
     let refreshInterval = null;
-    let minuteInterval = null;
     let lastKnownScore = { home: 0, away: 0 };
     let lastKnownMinute = 0;
     let lastKnownEvents = [];
     
-    // Partita da seguire (Norvegia vs Inghilterra)
     const TARGET_MATCH = {
         home: 'Norway',
         away: 'England'
     };
     
-    // Inizializza l'applicazione
     async function init() {
         console.log('MatchPulse initializing...');
         
-        // Inizializza i moduli
         MatchPulseUI.init();
         MatchPulsePopup.init();
         
-        // Carica i dati iniziali
         await loadInitialData();
         
-        // Avvia il refresh automatico
         startAutoRefresh();
         
-        // Setup event listeners
         setupEventListeners();
         
         console.log('MatchPulse ready!');
     }
     
-    // Carica tutti i dati iniziali
     async function loadInitialData() {
         try {
-            // Carica partita in evidenza
             await loadFeaturedMatch();
-            
-            // Carica partite live
             await loadLiveMatches();
-            
-            // Carica partite di oggi
             await loadTodayMatches();
-            
-            // Carica competizioni
             await MatchPulseUI.renderCompetitions();
-            
-            // Carica preferiti
             await loadFavorites();
             
         } catch (error) {
@@ -64,10 +46,8 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Carica la partita in evidenza (cerca prima Norvegia vs Inghilterra)
     async function loadFeaturedMatch() {
         try {
-            // Cerca la partita specifica Norvegia vs Inghilterra
             const specificMatch = await MatchPulseAPI.findSpecificMatch(TARGET_MATCH.home, TARGET_MATCH.away);
             
             if (specificMatch) {
@@ -80,7 +60,6 @@ const MatchPulseApp = (() => {
                 return;
             }
             
-            // Altrimenti usa la logica normale
             const savedFeaturedId = localStorage.getItem('matchpulse_featured');
             
             let match;
@@ -99,7 +78,6 @@ const MatchPulseApp = (() => {
                 MatchPulseUI.renderFeaturedMatch(match);
                 updatePinButton();
             } else {
-                // Mostra messaggio se non ci sono partite
                 const featuredCard = document.getElementById('featuredCard');
                 if (featuredCard) {
                     featuredCard.innerHTML = `
@@ -118,7 +96,6 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Carica le partite live
     async function loadLiveMatches() {
         try {
             const matches = await MatchPulseAPI.getLiveMatches();
@@ -128,7 +105,6 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Carica le partite di oggi
     async function loadTodayMatches() {
         try {
             const matches = await MatchPulseAPI.getTodayMatches();
@@ -138,7 +114,6 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Carica i preferiti
     async function loadFavorites() {
         const favorites = JSON.parse(localStorage.getItem('matchpulse_favorites') || '[]');
         const favoritesList = document.getElementById('favoritesList');
@@ -150,7 +125,6 @@ const MatchPulseApp = (() => {
             return;
         }
         
-        // Per ogni preferito, carica i dettagli
         const favoritesHtml = [];
         for (const matchId of favorites) {
             try {
@@ -161,7 +135,7 @@ const MatchPulseApp = (() => {
                             <span style="font-size: 24px;">${match.homeTeam.logo}</span>
                             <div style="flex: 1;">
                                 <div style="font-weight: 600;">${match.homeTeam.name} vs ${match.awayTeam.name}</div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">${match.competition} - ${match.score.home}-${match.score.away}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">${match.competition} • ${match.score.home}-${match.score.away}</div>
                             </div>
                             <span style="color: var(--accent-primary); font-weight: 700;">${match.status === 'LIVE' ? match.minute + "'" : match.time || ''}</span>
                         </div>
@@ -174,7 +148,6 @@ const MatchPulseApp = (() => {
         
         favoritesList.innerHTML = favoritesHtml.join('');
         
-        // Aggiungi click handler
         favoritesList.querySelectorAll('.favorite-item').forEach(item => {
             item.addEventListener('click', () => {
                 const matchId = item.getAttribute('data-match-id');
@@ -183,16 +156,13 @@ const MatchPulseApp = (() => {
         });
     }
     
-    // Avvia il refresh automatico dei dati
     function startAutoRefresh() {
-        // Aggiorna i dati completi ogni 30 secondi
         refreshInterval = setInterval(async () => {
             await refreshFeaturedMatch();
             await loadLiveMatches();
         }, 30000);
     }
     
-    // Aggiorna solo la partita in evidenza (controllo eventi)
     async function refreshFeaturedMatch() {
         if (!featuredMatchId) return;
         
@@ -201,13 +171,10 @@ const MatchPulseApp = (() => {
             
             if (!match) return;
             
-            // Aggiorna la UI
             MatchPulseUI.renderFeaturedMatch(match);
             
-            // Controlla se ci sono nuovi eventi
             checkForNewEvents(match);
             
-            // Aggiorna ultimo punteggio e minuto conosciuti
             lastKnownScore = { ...match.score };
             lastKnownMinute = match.minute || 0;
             if (match.events) {
@@ -219,9 +186,7 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Controlla se ci sono nuovi eventi e mostra popup
     function checkForNewEvents(match) {
-        // Controlla gol
         if (match.score.home > lastKnownScore.home) {
             MatchPulsePopup.showEvent({
                 type: 'goal',
@@ -230,7 +195,6 @@ const MatchPulseApp = (() => {
                 minute: match.minute || lastKnownMinute
             });
             
-            // Animazione sulla card
             const featuredCard = document.querySelector('.featured-card');
             if (featuredCard) {
                 featuredCard.classList.add('goal-scored');
@@ -257,7 +221,6 @@ const MatchPulseApp = (() => {
             }
         }
         
-        // Controlla nuovi eventi nella timeline
         if (match.events && match.events.length > lastKnownEvents.length) {
             const newEvents = match.events.slice(lastKnownEvents.length);
             
@@ -274,7 +237,6 @@ const MatchPulseApp = (() => {
                     eventType = 'substitution';
                 }
                 
-                // Non mostrare di nuovo i gol già mostrati
                 if (eventType !== 'goal' || !event.score) {
                     MatchPulsePopup.showEvent({
                         type: eventType,
@@ -286,7 +248,6 @@ const MatchPulseApp = (() => {
             });
         }
         
-        // Controlla fine partita
         if (match.status === 'FINISHED' && lastKnownMinute < 90) {
             MatchPulsePopup.showEvent({
                 type: 'fulltime',
@@ -296,7 +257,6 @@ const MatchPulseApp = (() => {
             });
         }
         
-        // Controlla intervallo
         if (match.status === 'PAUSED' || match.status === 'HALFTIME') {
             if (lastKnownMinute < 45) {
                 MatchPulsePopup.showEvent({
@@ -309,17 +269,16 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Setup degli event listeners
     function setupEventListeners() {
-        // Pulsante indietro Match Center
         const backBtn = document.getElementById('backBtn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
                 MatchPulseUI.closeMatchCenter();
+                const title = document.querySelector('.match-center-header h2');
+                if (title) title.textContent = 'Match Center';
             });
         }
         
-        // Pulsante preferiti header
         const favoritesBtn = document.getElementById('favoritesBtn');
         if (favoritesBtn) {
             favoritesBtn.addEventListener('click', () => {
@@ -330,13 +289,11 @@ const MatchPulseApp = (() => {
             });
         }
         
-        // Pulsante pin featured
         const pinBtn = document.getElementById('pinFeaturedBtn');
         if (pinBtn) {
             pinBtn.addEventListener('click', toggleFeaturedPin);
         }
         
-        // Pulsante follow nel match center
         const followBtn = document.getElementById('followBtn');
         if (followBtn) {
             followBtn.addEventListener('click', () => {
@@ -346,7 +303,6 @@ const MatchPulseApp = (() => {
             });
         }
         
-        // Chiudi search modal con ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const searchModal = document.getElementById('searchModal');
@@ -361,7 +317,6 @@ const MatchPulseApp = (() => {
             }
         });
         
-        // Aggiorna la pagina quando torna visibile (per mobile)
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 console.log('Page visible, refreshing data...');
@@ -370,7 +325,6 @@ const MatchPulseApp = (() => {
         });
     }
     
-    // Toggle pin partita in evidenza
     function toggleFeaturedPin() {
         if (!featuredMatchId) return;
         
@@ -386,7 +340,6 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Aggiorna stato pulsante pin
     function updatePinButton() {
         const pinBtn = document.getElementById('pinFeaturedBtn');
         if (!pinBtn) return;
@@ -400,7 +353,6 @@ const MatchPulseApp = (() => {
         }
     }
     
-    // Avvia l'app quando il DOM è pronto
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
