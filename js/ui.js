@@ -5,10 +5,8 @@
 
 const MatchPulseUI = (() => {
     
-    // Elementi DOM cached
     let elements = {};
     
-    // Inizializza i riferimenti agli elementi DOM
     function initElements() {
         elements = {
             featuredCard: document.getElementById('featuredCard'),
@@ -27,7 +25,6 @@ const MatchPulseUI = (() => {
         };
     }
     
-    // Renderizza la partita in evidenza
     function renderFeaturedMatch(match) {
         if (!match || !elements.featuredCard) return;
         
@@ -64,14 +61,12 @@ const MatchPulseUI = (() => {
         
         elements.featuredCard.innerHTML = html;
         
-        // Aggiungi event listener al pulsante Segui
         const followBtn = document.getElementById('followFeaturedBtn');
         if (followBtn) {
             followBtn.addEventListener('click', () => toggleFollowMatch(match.id));
         }
     }
     
-    // Renderizza le partite live
     function renderLiveMatches(matches) {
         if (!elements.liveMatches) return;
         
@@ -105,7 +100,6 @@ const MatchPulseUI = (() => {
         
         elements.liveMatches.innerHTML = html;
         
-        // Aggiungi click handler alle card
         document.querySelectorAll('.match-card').forEach(card => {
             card.addEventListener('click', () => {
                 const matchId = card.getAttribute('data-match-id');
@@ -114,7 +108,6 @@ const MatchPulseUI = (() => {
         });
     }
     
-    // Renderizza le partite di oggi
     function renderTodayMatches(matches) {
         if (!elements.todayMatches) return;
         
@@ -145,7 +138,6 @@ const MatchPulseUI = (() => {
         
         elements.todayMatches.innerHTML = html;
         
-        // Aggiungi click handler alle card
         document.querySelectorAll('.match-card').forEach(card => {
             card.addEventListener('click', () => {
                 const matchId = card.getAttribute('data-match-id');
@@ -154,26 +146,32 @@ const MatchPulseUI = (() => {
         });
     }
     
-    // Renderizza le competizioni
     async function renderCompetitions() {
         if (!elements.competitionsGrid) return;
         
         try {
             const competitions = await MatchPulseAPI.getCompetitions();
             const html = competitions.map(comp => `
-                <div class="competition-card">
+                <div class="competition-card" data-comp-code="${comp.id}" data-comp-name="${comp.name}">
                     <div class="competition-logo">${comp.logo}</div>
                     <div class="competition-name">${comp.name}</div>
                 </div>
             `).join('');
             
             elements.competitionsGrid.innerHTML = html;
+            
+            document.querySelectorAll('.competition-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const code = card.getAttribute('data-comp-code');
+                    const name = card.getAttribute('data-comp-name');
+                    openCompetition(code, name);
+                });
+            });
         } catch (error) {
             console.error('Error loading competitions:', error);
         }
     }
     
-    // Apre il Match Center
     async function openMatchCenter(matchId) {
         try {
             const matchDetails = await MatchPulseAPI.getMatchDetails(matchId);
@@ -187,7 +185,6 @@ const MatchPulseUI = (() => {
                 elements.matchCenter.classList.add('active');
             }
             
-            // Aggiungi event listener al pulsante indietro
             const backBtn = document.getElementById('backBtn');
             if (backBtn) {
                 backBtn.addEventListener('click', closeMatchCenter);
@@ -198,7 +195,103 @@ const MatchPulseUI = (() => {
         }
     }
     
-    // Renderizza il contenuto del Match Center
+    async function openCompetition(competitionCode, competitionName) {
+        try {
+            const matches = await MatchPulseAPI.getCompetitionMatches(competitionCode);
+            const html = renderCompetitionContent(competitionName, matches);
+            
+            if (elements.matchCenterContent) {
+                elements.matchCenterContent.innerHTML = html;
+            }
+            
+            if (elements.matchCenter) {
+                elements.matchCenter.classList.add('active');
+            }
+            
+            const title = document.querySelector('.match-center-header h2');
+            if (title) title.textContent = competitionName;
+            
+            document.querySelectorAll('.match-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const matchId = card.getAttribute('data-match-id');
+                    openMatchCenter(matchId);
+                });
+            });
+            
+        } catch (error) {
+            console.error('Error opening competition:', error);
+        }
+    }
+    
+    function renderCompetitionContent(competitionName, matches) {
+        if (matches.length === 0) {
+            return `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 16px;"></div>
+                    <h3 style="margin-bottom: 8px;">Nessuna partita oggi</h3>
+                    <p style="color: var(--text-secondary);">
+                        Non ci sono partite di ${competitionName} in programma per oggi.
+                    </p>
+                </div>
+            `;
+        }
+        
+        const liveMatches = matches.filter(m => m.status === 'LIVE' || m.status === 'IN_PLAY' || m.status === 'PAUSED');
+        const scheduledMatches = matches.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED');
+        const finishedMatches = matches.filter(m => m.status === 'FINISHED');
+        
+        let html = '<div style="padding: 20px 0;">';
+        
+        if (liveMatches.length > 0) {
+            html += '<h3 style="margin-bottom: 16px; color: var(--danger);">🔴 Live Ora</h3>';
+            html += '<div class="matches-grid" style="margin-bottom: 32px;">';
+            html += liveMatches.map(match => renderMatchCard(match, true)).join('');
+            html += '</div>';
+        }
+        
+        if (scheduledMatches.length > 0) {
+            html += '<h3 style="margin-bottom: 16px;">📅 In Programma</h3>';
+            html += '<div class="matches-grid" style="margin-bottom: 32px;">';
+            html += scheduledMatches.map(match => renderMatchCard(match, false)).join('');
+            html += '</div>';
+        }
+        
+        if (finishedMatches.length > 0) {
+            html += '<h3 style="margin-bottom: 16px; color: var(--text-secondary);">✅ Terminati</h3>';
+            html += '<div class="matches-grid">';
+            html += finishedMatches.map(match => renderMatchCard(match, false)).join('');
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        return html;
+    }
+    
+    function renderMatchCard(match, isLive) {
+        const statusText = isLive ? match.minute + "'" : (match.time || '');
+        const scoreClass = isLive ? 'live' : '';
+        
+        return `
+            <div class="match-card" data-match-id="${match.id}">
+                <div class="match-card-header">
+                    <span>${match.competition}</span>
+                    ${isLive ? '<span class="live-indicator"><span class="live-dot"></span>' + statusText + '</span>' : '<span>' + statusText + '</span>'}
+                </div>
+                <div class="match-card-teams">
+                    <div class="match-card-team home">
+                        <div class="match-card-logo">${match.homeTeam.logo}</div>
+                        <div class="match-card-team-name">${match.homeTeam.name}</div>
+                    </div>
+                    <div class="match-card-score ${scoreClass}">${match.score.home} - ${match.score.away}</div>
+                    <div class="match-card-team away">
+                        <div class="match-card-logo">${match.awayTeam.logo}</div>
+                        <div class="match-card-team-name">${match.awayTeam.name}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
     function renderMatchCenterContent(match) {
         return `
             <div class="match-center-score">
@@ -226,16 +319,16 @@ const MatchPulseUI = (() => {
             
             <div class="tab-content active" id="tab-timeline">
                 <div class="timeline">
-                    ${match.events.map(event => `
+                    ${match.events && match.events.length > 0 ? match.events.map(event => `
                         <div class="timeline-event">
                             <div class="timeline-minute">${event.minute}'</div>
                             <div class="timeline-icon">${getEventIcon(event.type)}</div>
                             <div class="timeline-details">
                                 <div class="timeline-player">${event.player}</div>
-                                <div class="timeline-info">${event.team === 'home' ? match.homeTeam.name : match.awayTeam.name}</div>
+                                <div class="timeline-info">${event.team === 'HOME' ? match.homeTeam.name : match.awayTeam.name}</div>
                             </div>
                         </div>
-                    `).join('')}
+                    `).join('') : '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">Nessun evento registrato</p>'}
                 </div>
             </div>
             
@@ -255,14 +348,14 @@ const MatchPulseUI = (() => {
                         <h3 style="margin-bottom: 12px;">${match.homeTeam.name}</h3>
                         <p style="color: var(--text-secondary); margin-bottom: 12px;">${match.homeTeam.formation}</p>
                         <ul style="list-style: none;">
-                            ${match.homeTeam.lineup.map(player => `<li style="padding: 8px 0; border-bottom: 1px solid var(--border);">${player}</li>`).join('')}
+                            ${match.homeTeam.lineup && match.homeTeam.lineup.length > 0 ? match.homeTeam.lineup.map(player => `<li style="padding: 8px 0; border-bottom: 1px solid var(--border);">${player}</li>`).join('') : '<li style="color: var(--text-secondary);">Formazione non disponibile</li>'}
                         </ul>
                     </div>
                     <div>
                         <h3 style="margin-bottom: 12px;">${match.awayTeam.name}</h3>
                         <p style="color: var(--text-secondary); margin-bottom: 12px;">${match.awayTeam.formation}</p>
                         <ul style="list-style: none;">
-                            ${match.awayTeam.lineup.map(player => `<li style="padding: 8px 0; border-bottom: 1px solid var(--border);">${player}</li>`).join('')}
+                            ${match.awayTeam.lineup && match.awayTeam.lineup.length > 0 ? match.awayTeam.lineup.map(player => `<li style="padding: 8px 0; border-bottom: 1px solid var(--border);">${player}</li>`).join('') : '<li style="color: var(--text-secondary);">Formazione non disponibile</li>'}
                         </ul>
                     </div>
                 </div>
@@ -270,7 +363,6 @@ const MatchPulseUI = (() => {
         `;
     }
     
-    // Renderizza una statistica
     function renderStat(label, homeValue, awayValue, suffix = '') {
         const total = homeValue + awayValue;
         const homePercent = total > 0 ? (homeValue / total) * 100 : 50;
@@ -291,26 +383,23 @@ const MatchPulseUI = (() => {
         `;
     }
     
-    // Ottieni icona per tipo di evento
     function getEventIcon(type) {
         const icons = {
-            goal: '⚽',
-            yellow: '🟨',
-            red: '🟥',
-            substitution: '🔄',
-            var: ''
+            'goal': '\u26BD',
+            'yellow': '\u{1F7E8}',
+            'red': '\u{1F7E5}',
+            'substitution': '\u{1F504}',
+            'var': '\u{1F4FA}'
         };
-        return icons[type] || '•';
+        return icons[type] || '\u2022';
     }
     
-    // Chiude il Match Center
     function closeMatchCenter() {
         if (elements.matchCenter) {
             elements.matchCenter.classList.remove('active');
         }
     }
     
-    // Toggle follow match
     function toggleFollowMatch(matchId) {
         const btn = document.getElementById('followFeaturedBtn');
         if (!btn) return;
@@ -328,7 +417,6 @@ const MatchPulseUI = (() => {
         }
     }
     
-    // Aggiungi ai preferiti
     function addToFavorites(matchId) {
         let favorites = JSON.parse(localStorage.getItem('matchpulse_favorites') || '[]');
         if (!favorites.includes(matchId)) {
@@ -337,14 +425,12 @@ const MatchPulseUI = (() => {
         }
     }
     
-    // Rimuovi dai preferiti
     function removeFromFavorites(matchId) {
         let favorites = JSON.parse(localStorage.getItem('matchpulse_favorites') || '[]');
         favorites = favorites.filter(id => id !== matchId);
         localStorage.setItem('matchpulse_favorites', JSON.stringify(favorites));
     }
     
-    // Inizializza la search modal
     function initSearch() {
         const searchBtn = document.getElementById('searchBtn');
         const closeSearch = document.getElementById('closeSearch');
@@ -353,13 +439,11 @@ const MatchPulseUI = (() => {
         
         if (!searchBtn || !closeSearch || !searchModal || !searchInput) return;
         
-        // Apri search
         searchBtn.addEventListener('click', () => {
             searchModal.classList.add('active');
             searchInput.focus();
         });
         
-        // Chiudi search
         closeSearch.addEventListener('click', () => {
             searchModal.classList.remove('active');
             searchInput.value = '';
@@ -368,7 +452,6 @@ const MatchPulseUI = (() => {
             }
         });
         
-        // Search input
         let searchTimeout;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
@@ -392,7 +475,6 @@ const MatchPulseUI = (() => {
         });
     }
     
-    // Renderizza risultati ricerca
     function renderSearchResults(results) {
         if (!elements.searchResults) return;
         
@@ -416,19 +498,16 @@ const MatchPulseUI = (() => {
         elements.searchResults.innerHTML = html;
     }
     
-    // Inizializza i tab del Match Center
     function initTabs() {
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-btn')) {
                 const tabId = e.target.getAttribute('data-tab');
                 
-                // Rimuovi active da tutti i tab
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                 
-                // Aggiungi active al tab selezionato
                 e.target.classList.add('active');
-                const targetContent = document.getElementById(`tab-${tabId}`);
+                const targetContent = document.getElementById('tab-' + tabId);
                 if (targetContent) {
                     targetContent.classList.add('active');
                 }
@@ -436,7 +515,6 @@ const MatchPulseUI = (() => {
         });
     }
     
-    // Inizializzazione
     function init() {
         initElements();
         initSearch();
@@ -450,6 +528,7 @@ const MatchPulseUI = (() => {
         renderTodayMatches: renderTodayMatches,
         renderCompetitions: renderCompetitions,
         openMatchCenter: openMatchCenter,
+        openCompetition: openCompetition,
         closeMatchCenter: closeMatchCenter,
         toggleFollowMatch: toggleFollowMatch
     };
