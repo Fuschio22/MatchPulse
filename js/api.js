@@ -73,25 +73,28 @@ const MatchPulseAPI = (() => {
         }
     }
     
-    // MODIFICATA: Mostra tutte le partite per Mondiale
-        async function getCompetitionMatches(competitionCode, competitionName) {
+    async function getCompetitionMatches(competitionCode, competitionName) {
         try {
             const today = new Date().toISOString().split('T')[0];
-            console.log('📅 Data oggi:', today);
+            console.log('DATA OGGI:', today);
+            console.log('COMPETIZIONE:', competitionName);
             
             const data = await fetchData('/matches?dateFrom=' + today + '&dateTo=' + today);
             
-            console.log('📊 Partite trovate:', data.matches ? data.matches.length : 0);
+            console.log('TOTALE PARTITE RICEVUTE:', data.matches ? data.matches.length : 0);
             
             if (data.matches && data.matches.length > 0) {
-                console.log('📋 Prima partita:', data.matches[0].homeTeam.name, 'vs', data.matches[0].awayTeam.name);
+                console.log('PRIME 3 PARTITE:');
+                data.matches.slice(0, 3).forEach(m => {
+                    console.log('  - ' + m.homeTeam.name + ' vs ' + m.awayTeam.name + ' (' + m.competition.name + ')');
+                });
             }
             
             if (competitionName && competitionName.toLowerCase().includes('mondiale')) {
-                console.log('✅ Mostro tutte le partite per Mondiale');
+                console.log('MOSTRO TUTTE LE PARTITE PER MONDIALE');
                 
                 if (!data.matches || data.matches.length === 0) {
-                    console.warn('⚠️ Nessuna partita oggi dall\'API');
+                    console.warn('NESSUNA PARTITA OGGI DALL API');
                 }
                 
                 return data.matches.map(match => ({
@@ -108,29 +111,6 @@ const MatchPulseAPI = (() => {
                 }));
             }
             
-            const filteredMatches = data.matches.filter(match => {
-                if (match.competition.id == competitionCode) return true;
-                return false;
-            });
-
-            return filteredMatches.map(match => ({
-                id: match.id,
-                homeTeam: { name: match.homeTeam.name, logo: getTeamLogo(match.homeTeam.shortName), shortName: match.homeTeam.shortName },
-                awayTeam: { name: match.awayTeam.name, logo: getTeamLogo(match.awayTeam.shortName), shortName: match.awayTeam.shortName },
-                score: { home: match.score.fullTime.home || match.score.halfTime.home || 0, away: match.score.fullTime.away || match.score.halfTime.away || 0 },
-                status: match.status,
-                minute: match.minute || 0,
-                time: new Date(match.utcDate).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
-                competition: match.competition.name,
-                stadium: match.venue || 'N/A',
-                lastEvent: getLastEvent(match)
-            }));
-        } catch (error) {
-            console.error('❌ Errore:', error);
-            return [];
-        }
-             
-            // Per altri campionati, applica il filtro normale
             const filteredMatches = data.matches.filter(match => {
                 if (match.competition.id == competitionCode) return true;
                 const apiName = match.competition.name.toLowerCase();
@@ -154,7 +134,7 @@ const MatchPulseAPI = (() => {
                 lastEvent: getLastEvent(match)
             }));
         } catch (error) {
-            console.error('Error fetching competition matches:', error);
+            console.error('ERRORE:', error);
             return [];
         }
     }
@@ -252,7 +232,7 @@ const MatchPulseAPI = (() => {
     function getLastEvent(match) {
         if (match.goals && match.goals.length > 0) {
             const lastGoal = match.goals[match.goals.length - 1];
-            return 'Gol! ' + lastGoal.player + ' (' + lastGoal.minute + "')";
+            return 'Gol! ' + lastGoal.player + ' (' + lastGoal.minute + ")";
         }
         return 'Nessun evento recente';
     }
