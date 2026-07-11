@@ -54,6 +54,40 @@ const MatchPulseAPI = (() => {
         }
     }
     
+    async function getCompetitionMatches(competitionCode) {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const data = await fetchData('/competitions/' + competitionCode + '/matches?dateFrom=' + today + '&dateTo=' + today);
+            
+            return data.matches.map(match => ({
+                id: match.id,
+                homeTeam: {
+                    name: match.homeTeam.name,
+                    logo: getTeamLogo(match.homeTeam.shortName),
+                    shortName: match.homeTeam.shortName
+                },
+                awayTeam: {
+                    name: match.awayTeam.name,
+                    logo: getTeamLogo(match.awayTeam.shortName),
+                    shortName: match.awayTeam.shortName
+                },
+                score: {
+                    home: match.score.fullTime.home || match.score.halfTime.home || 0,
+                    away: match.score.fullTime.away || match.score.halfTime.away || 0
+                },
+                status: match.status,
+                minute: match.minute || 0,
+                time: new Date(match.utcDate).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+                competition: match.competition.name,
+                stadium: match.venue || 'N/A',
+                lastEvent: getLastEvent(match)
+            }));
+        } catch (error) {
+            console.error('Error fetching competition matches:', error);
+            return [];
+        }
+    }
+    
     async function getLiveMatches() {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -270,6 +304,7 @@ const MatchPulseAPI = (() => {
         getTodayMatches: getTodayMatches,
         getMatchDetails: getMatchDetails,
         searchTeams: searchTeams,
-        findSpecificMatch: findSpecificMatch
+        findSpecificMatch: findSpecificMatch,
+        getCompetitionMatches: getCompetitionMatches
     };
 })();
