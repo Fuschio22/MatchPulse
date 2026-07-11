@@ -1,15 +1,17 @@
 /**
- * MatchPulse API Module
- * Handles all data fetching and management
- * Separated from UI for better maintainability
+ * MatchPulse API Module - REAL API Integration
+ * Uses football-data.org API for live match data
  */
 
 const MatchPulseAPI = (() => {
     const API_BASE_URL = 'https://api.football-data.org/v4';
-    const API_KEY = '';
+    const API_KEY = 'cdd1a87ea50a411880249e70138e0233'; // La tua API key
     
     const cache = new Map();
-    const CACHE_DURATION = 5 * 60 * 1000;
+    const CACHE_DURATION = 30 * 1000; // 30 secondi (piano free: 10 req/min)
+    
+    // ID della Coppa del Mondo FIFA 2026 (da verificare)
+    const WORLD_CUP_ID = 2018; // Questo è un esempio, dobbiamo trovare l'ID corretto
     
     async function fetchData(endpoint, options = {}) {
         const cacheKey = endpoint + '_' + JSON.stringify(options);
@@ -22,14 +24,13 @@ const MatchPulseAPI = (() => {
         try {
             const response = await fetch(API_BASE_URL + endpoint, {
                 headers: {
-                    'X-Auth-Token': API_KEY,
-                    'Content-Type': 'application/json'
+                    'X-Auth-Token': API_KEY
                 },
                 ...options
             });
             
             if (!response.ok) {
-                throw new Error('API Error: ' + response.status);
+                throw new Error('API Error: ' + response.status + ' - ' + response.statusText);
             }
             
             const data = await response.json();
@@ -41,7 +42,220 @@ const MatchPulseAPI = (() => {
         }
     }
     
+    // Ottieni tutte le competizioni disponibili
     async function getCompetitions() {
+        try {
+            const data = await fetchData('/competitions');
+            return data.competitions.map(comp => ({
+                id: comp.id,
+                name: comp.name,
+                country: comp.area.name,
+                logo: getCompetitionLogo(comp.code)
+            }));
+        } catch (error) {
+            console.error('Error fetching competitions:', error);
+            return getMockCompetitions();
+        }
+    }
+    
+    // Ottieni partite live
+    async function getLiveMatches() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const data = await fetchData('/matches?dateFrom=' + today + '&dateTo=' + today + '&status=LIVE');
+            
+            return data.matches.map(match => ({
+                id: match.id,
+                homeTeam: {
+                    name: match.homeTeam.name,
+                    logo: getTeamLogo(match.homeTeam.shortName),
+                    shortName: match.homeTeam.shortName
+                },
+                awayTeam: {
+                    name: match.awayTeam.name,
+                    logo: getTeamLogo(match.awayTeam.shortName),
+                    shortName: match.awayTeam.shortName
+                },
+                score: {
+                    home: match.score.fullTime.home || match.score.halfTime.home || 0,
+                    away: match.score.fullTime.away || match.score.halfTime.away || 0
+                },
+                status: match.status,
+                minute: match.minute || 0,
+                competition: match.competition.name,
+                stadium: match.venue || 'N/A',
+                lastEvent: getLastEvent(match)
+            }));
+        } catch (error) {
+            console.error('Error fetching live matches:', error);
+            return getMockLiveMatches();
+        }
+    }
+    
+    // Ottieni partite di oggi
+    async function getTodayMatches() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const data = await fetchData('/matches?dateFrom=' + today + '&dateTo=' + today + '&status=SCHEDULED');
+            
+            return data.matches.map(match => ({
+                id: match.id,
+                homeTeam: {
+                    name: match.homeTeam.name,
+                    logo: getTeamLogo(match.homeTeam.shortName),
+                    shortName: match.homeTeam.shortName
+                },
+                awayTeam: {
+                    name: match.awayTeam.name,
+                    logo: getTeamLogo(match.awayTeam.shortName),
+                    shortName: match.awayTeam.shortName
+                },
+                score: { home: 0, away: 0 },
+                status: match.status,
+                time: new Date(match.utcDate).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+                competition: match.competition.name,
+                stadium: match.venue || 'N/A'
+            }));
+        } catch (error) {
+            console.error('Error fetching today matches:', error);
+            return getMockTodayMatches();
+        }
+    }
+    
+    // Cerca partita specifica (Norvegia vs Inghilterra)
+    async function findSpecificMatch(homeTeam, awayTeam) {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const data = await fetchData('/matches?dateFrom=' + today + '&dateTo=' + today);
+            
+            const match = data.matches.find(m => 
+                m.homeTeam.name.toLowerCase().includes(homeTeam.toLowerCase()) &&
+                m.awayTeam.name.toLowerCase().includes(awayTeam.toLowerCase())
+            );
+            
+            if (match) {
+                return formatMatchData(match);
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Error finding specific match:', error);
+            return null;
+        }
+    }
+    
+    // Ottieni dettagli partita
+    async function getMatchDetails(matchId) {
+        try {
+            const data = await fetchData('/matches/' + matchId);
+            return formatMatchData(data);
+        } catch (error) {
+            console.error('Error fetching match details:', error);
+            return getMockMatchDetails(matchId);
+        }
+    }
+    
+    // Formatta dati partita
+    function formatMatchData(match) {
+        return {
+            id: match.id,
+            homeTeam: {
+                name: match.homeTeam.name,
+                logo: getTeamLogo(match.homeTeam.shortName),
+                shortName: match.homeTeam.shortName,
+                formation: '4-3-3',
+                lineup: [],
+                subs: []
+            },
+            awayTeam: {
+                name: match.awayTeam.name,
+                logo: getTeamLogo(match.awayTeam.shortName),
+                shortName: match.awayTeam.shortName,
+                formation: '4-3-3',
+                lineup: [],
+                subs: []
+            },
+            score: {
+                home: match.score.fullTime.home || match.score.halfTime.home || 0,
+                away: match.score.fullTime.away || match.score.halfTime.away || 0
+            },
+            status: match.status,
+            minute: match.minute || 0,
+            competition: match.competition.name,
+            stadium: match.venue || 'N/A',
+            referee: match.referees && match.referees[0] ? match.referees[0].name : 'N/A',
+            attendance: match.attendance || 0,
+            events: match.goals || [],
+            stats: {
+                possession: { home: 50, away: 50 },
+                shots: { home: 0, away: 0 },
+                shotsOnTarget: { home: 0, away: 0 },
+                corners: { home: 0, away: 0 },
+                fouls: { home: 0, away: 0 },
+                yellowCards: { home: 0, away: 0 },
+                redCards: { home: 0, away: 0 }
+            }
+        };
+    }
+    
+    // Cerca squadre
+    async function searchTeams(query) {
+        try {
+            const data = await fetchData('/teams?name=' + encodeURIComponent(query));
+            return data.teams.map(team => ({
+                id: team.id,
+                name: team.name,
+                logo: getTeamLogo(team.shortName),
+                competition: team.venue || 'N/A'
+            }));
+        } catch (error) {
+            console.error('Error searching teams:', error);
+            return [];
+        }
+    }
+    
+    // Helper: Ottieni ultimo evento
+    function getLastEvent(match) {
+        if (match.goals && match.goals.length > 0) {
+            const lastGoal = match.goals[match.goals.length - 1];
+            return 'Gol! ' + lastGoal.player + ' (' + lastGoal.minute + "')";
+        }
+        return 'Nessun evento recente';
+    }
+    
+    // Helper: Logo squadra (emoji placeholder)
+    function getTeamLogo(shortName) {
+        const logos = {
+            'NOR': '🇳🇴',
+            'ENG': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+            'ITA': '🇮🇹',
+            'ESP': '🇪🇸',
+            'GER': '🇩🇪',
+            'FRA': '🇫🇷',
+            'BRA': '🇧🇷',
+            'ARG': '🇦🇷'
+        };
+        return logos[shortName] || '⚽';
+    }
+    
+    // Helper: Logo competizione
+    function getCompetitionLogo(code) {
+        const logos = {
+            'WC': '🏆',
+            'EC': '🏆',
+            'PL': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+            'SA': '🇮🇹',
+            'PD': '🇪🇸',
+            'BL1': '🇩🇪',
+            'FL1': '🇫🇷',
+            'CL': '🏆',
+            'EL': '🥈'
+        };
+        return logos[code] || '🏆';
+    }
+    
+    // Mock data (fallback se API non funziona)
+    function getMockCompetitions() {
         return [
             { id: 'SA', name: 'Serie A', country: 'Italy', logo: '🇮🇹' },
             { id: 'PL', name: 'Premier League', country: 'England', logo: '🇬🇧' },
@@ -52,132 +266,24 @@ const MatchPulseAPI = (() => {
         ];
     }
     
-    async function getLiveMatches() {
-        return [
-            {
-                id: 'match-1',
-                homeTeam: { name: 'Inter', logo: '⚫', shortName: 'INT' },
-                awayTeam: { name: 'Milan', logo: '🔴', shortName: 'MIL' },
-                score: { home: 2, away: 1 },
-                status: 'LIVE',
-                minute: 67,
-                competition: 'Serie A',
-                stadium: 'San Siro',
-                lastEvent: 'Gol! Lautaro Martinez (67)'
-            },
-            {
-                id: 'match-2',
-                homeTeam: { name: 'Juventus', logo: '⚪', shortName: 'JUV' },
-                awayTeam: { name: 'Roma', logo: '🟡', shortName: 'ROM' },
-                score: { home: 1, away: 1 },
-                status: 'LIVE',
-                minute: 45,
-                competition: 'Serie A',
-                stadium: 'Allianz Stadium',
-                lastEvent: 'Cartellino giallo (43)'
-            }
-        ];
+    function getMockLiveMatches() {
+        return [];
     }
     
-    async function getTodayMatches() {
-        return [
-            {
-                id: 'match-3',
-                homeTeam: { name: 'Napoli', logo: '🔵', shortName: 'NAP' },
-                awayTeam: { name: 'Lazio', logo: '🦅', shortName: 'LAZ' },
-                score: { home: 0, away: 0 },
-                status: 'SCHEDULED',
-                time: '20:45',
-                competition: 'Serie A',
-                stadium: 'Diego Armando Maradona'
-            },
-            {
-                id: 'match-4',
-                homeTeam: { name: 'Atalanta', logo: '⚡', shortName: 'ATA' },
-                awayTeam: { name: 'Fiorentina', logo: '🟣', shortName: 'FIO' },
-                score: { home: 0, away: 0 },
-                status: 'SCHEDULED',
-                time: '18:30',
-                competition: 'Serie A',
-                stadium: 'Gewiss Stadium'
-            }
-        ];
+    function getMockTodayMatches() {
+        return [];
     }
     
-    async function getFeaturedMatch() {
-        const liveMatches = await getLiveMatches();
-        return liveMatches[0] || null;
-    }
-    
-    async function getMatchDetails(matchId) {
-        return {
-            id: matchId,
-            homeTeam: { 
-                name: 'Inter', 
-                logo: '⚫', 
-                shortName: 'INT',
-                formation: '3-5-2',
-                lineup: ['Handanovic', 'Bastoni', 'De Vrij', 'Scriniar', 'Dimarco', 'Barella', 'Calhanoglu', 'Mkhitaryan', 'Darmian', 'Lautaro', 'Dzeko'],
-                subs: ['Onana', 'Bellanova', 'Correa']
-            },
-            awayTeam: { 
-                name: 'Milan', 
-                logo: '🔴', 
-                shortName: 'MIL',
-                formation: '4-3-3',
-                lineup: ['Maignan', 'Calabria', 'Tomori', 'Kjaer', 'Theo', 'Tonali', 'Bennacer', 'Diaz', 'Saelemaekers', 'Giroud', 'Leao'],
-                subs: ['Tatarusanu', 'Kalulu', 'Origi']
-            },
-            score: { home: 2, away: 1 },
-            status: 'LIVE',
-            minute: 67,
-            competition: 'Serie A',
-            stadium: 'San Siro',
-            referee: 'Daniele Orsato',
-            attendance: 75000,
-            events: [
-                { minute: 15, type: 'goal', player: 'Lautaro Martinez', team: 'home', assist: 'Barella' },
-                { minute: 32, type: 'goal', player: 'Leao', team: 'away', assist: 'Theo' },
-                { minute: 45, type: 'yellow', player: 'Tonali', team: 'away' },
-                { minute: 58, type: 'substitution', playerIn: 'Correa', playerOut: 'Dzeko', team: 'home' },
-                { minute: 67, type: 'goal', player: 'Barella', team: 'home', assist: 'Lautaro Martinez' }
-            ],
-            stats: {
-                possession: { home: 58, away: 42 },
-                shots: { home: 12, away: 8 },
-                shotsOnTarget: { home: 6, away: 3 },
-                corners: { home: 5, away: 2 },
-                fouls: { home: 8, away: 11 },
-                yellowCards: { home: 1, away: 2 },
-                redCards: { home: 0, away: 0 }
-            }
-        };
-    }
-    
-    async function searchTeams(query) {
-        const allTeams = [
-            { id: 'inter', name: 'Inter', logo: '⚫', competition: 'Serie A' },
-            { id: 'milan', name: 'Milan', logo: '🔴', competition: 'Serie A' },
-            { id: 'juventus', name: 'Juventus', logo: '⚪', competition: 'Serie A' },
-            { id: 'roma', name: 'Roma', logo: '🟡', competition: 'Serie A' },
-            { id: 'napoli', name: 'Napoli', logo: '🔵', competition: 'Serie A' },
-            { id: 'lazio', name: 'Lazio', logo: '🦅', competition: 'Serie A' },
-            { id: 'atalanta', name: 'Atalanta', logo: '⚡', competition: 'Serie A' },
-            { id: 'fiorentina', name: 'Fiorentina', logo: '🟣', competition: 'Serie A' }
-        ];
-        
-        const lowerQuery = query.toLowerCase();
-        return allTeams.filter(function(team) {
-            return team.name.toLowerCase().indexOf(lowerQuery) !== -1;
-        });
+    function getMockMatchDetails(matchId) {
+        return null;
     }
     
     return {
         getCompetitions: getCompetitions,
         getLiveMatches: getLiveMatches,
         getTodayMatches: getTodayMatches,
-        getFeaturedMatch: getFeaturedMatch,
         getMatchDetails: getMatchDetails,
-        searchTeams: searchTeams
+        searchTeams: searchTeams,
+        findSpecificMatch: findSpecificMatch
     };
 })();
