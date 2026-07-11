@@ -2,41 +2,413 @@
 <html>
 <head>
     <title>Mondiale 2026 - MatchPulse</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0 30px;
+            font-size: 28px;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 20px;
+            margin: 30px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Match Card */
+        .match-card {
+            background: #242424;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .match-card.featured {
+            background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(123,44,191,0.15));
+            border: 2px solid #00d4ff;
+            padding: 32px 24px;
+        }
+        .match-time {
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+        .team {
+            flex: 1;
+            text-align: center;
+        }
+        .team.away {
+            text-align: center;
+        }
+        .flag {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .team-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .vs {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            min-width: 60px;
+            text-align: center;
+        }
+        .score {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .match-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+        }
+        
+        /* Recent Results */
+        .result {
+            background: #1a1a1a;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .result-score {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .result-date {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+        
+        /* LIVE POPUP */
+        .live-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        .live-popup.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .popup-content {
+            background: linear-gradient(135deg, #1a1a1a, #242424);
+            border: 3px solid #00d4ff;
+            border-radius: 24px;
+            padding: 40px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+            box-shadow: 0 20px 60px rgba(0,212,255,0.3);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .popup-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ff3366;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .popup-teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .popup-team {
+            flex: 1;
+        }
+        .popup-flag {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+        .popup-team-name {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .popup-score {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .popup-minute {
+            font-size: 18px;
+            color: #ff3366;
+            font-weight: 700;
+            margin-top: 16px;
+        }
+        .popup-close {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .popup-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .popup-minimize {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        /* Countdown */
+        .countdown {
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(123,44,191,0.1));
+            border: 2px solid #00d4ff;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .countdown-title {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 16px;
+        }
+        .countdown-timer {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .flag { font-size: 40px; }
+            .popup-flag { font-size: 48px; }
+            .popup-score { font-size: 36px; }
+            .vs { font-size: 24px; }
+        }
+    </style>
 </head>
 <body>
     <h1>🏆 Mondiale 2026</h1>
     
+    <!-- Countdown alla partita -->
+    <div class="countdown" id="countdown">
+        <div class="countdown-title">La partita inizia tra:</div>
+        <div class="countdown-timer" id="timer">--:--:--</div>
+    </div>
+    
     <h2>Partita di Oggi</h2>
-    <div style="background: #242424; padding: 20px; border-radius: 12px; margin: 20px 0;">
-        <div style="text-align: center; font-size: 24px; margin-bottom: 20px;">
-            Oggi alle 23:00
+    <div class="match-card featured">
+        <div class="match-time">Oggi alle 23:00 • Quarti di Finale</div>
+        <div class="teams">
+            <div class="team">
+                <div class="flag">🇳🇴</div>
+                <div class="team-name">Norvegia</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="team away">
+                <div class="flag">🏴󠁥</div>
+                <div class="team-name">Inghilterra</div>
+            </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="text-align: center; flex: 1;">
-                <div style="font-size: 48px;">🇳🇴</div>
-                <div>Norvegia</div>
-            </div>
-            <div style="font-size: 32px; font-weight: bold; color: #00d4ff;">VS</div>
-            <div style="text-align: center; flex: 1;">
-                <div style="font-size: 48px;">🏴󠁥󠁿</div>
-                <div>Inghilterra</div>
-            </div>
+        <div class="match-info">
+            📍 Wembley Stadium, Londra<br>
+            🎫 Ultimi biglietti disponibili
         </div>
     </div>
     
     <h2>Risultati Recenti</h2>
-    <div style="background: #242424; padding: 20px; border-radius: 12px;">
-        <div style="margin-bottom: 16px; padding: 16px; background: #1a1a1a; border-radius: 8px;">
-            <div>Spagna 2 - 1 Belgio</div>
-            <div style="color: #888; font-size: 14px;">10 Luglio 2026</div>
-        </div>
-        <div style="margin-bottom: 16px; padding: 16px; background: #1a1a1a; border-radius: 8px;">
-            <div>Francia 2 - 0 Marocco</div>
-            <div style="color: #888; font-size: 14px;">9 Luglio 2026</div>
+    <div class="result">
+        <div class="result-score">🇪🇸 Spagna 2 - 1 Belgio 🇧🇪</div>
+        <div class="result-date">10 Luglio 2026</div>
+    </div>
+    <div class="result">
+        <div class="result-score">🇷 Francia 2 - 0 Marocco 🇲🇦</div>
+        <div class="result-date">9 Luglio 2026</div>
+    </div>
+    <div class="result">
+        <div class="result-score">🇨🇭 Svizzera 4 - 3 Colombia 🇨🇴</div>
+        <div class="result-date">7 Luglio 2026</div>
+    </div>
+    
+    <!-- LIVE POPUP -->
+    <div class="live-popup" id="livePopup">
+        <div class="popup-content">
+            <button class="popup-minimize" onclick="minimizePopup()">−</button>
+            <div class="popup-live">
+                <span class="live-dot"></span>
+                LIVE ORA
+            </div>
+            <div class="popup-teams">
+                <div class="popup-team">
+                    <div class="popup-flag">🇳🇴</div>
+                    <div class="popup-team-name">Norvegia</div>
+                </div>
+                <div class="popup-score" id="popupScore">0 - 0</div>
+                <div class="popup-team">
+                    <div class="popup-flag">🏴󠁿</div>
+                    <div class="popup-team-name">Inghilterra</div>
+                </div>
+            </div>
+            <div class="popup-minute" id="popupMinute">1° TEMPO • 1'</div>
+            <button class="popup-close" onclick="closePopup()">Chiudi Popup</button>
         </div>
     </div>
     
-    <a href="index.html" style="display: block; text-align: center; margin-top: 20px; color: #00d4ff;">← Torna alla Home</a>
+    <a href="index.html" style="display: block; text-align: center; margin-top: 30px; color: #00d4ff; text-decoration: none;">← Torna alla Home</a>
+    
+    <script>
+        // CONFIGURAZIONE
+        const MATCH_TIME = { hour: 23, minute: 0 }; // 23:00
+        
+        // Countdown
+        function updateCountdown() {
+            const now = new Date();
+            const matchDate = new Date();
+            matchDate.setHours(MATCH_TIME.hour, MATCH_TIME.minute, 0);
+            
+            // Se è già passata la partita, nascondi countdown
+            if (now > matchDate) {
+                document.getElementById('countdown').style.display = 'none';
+                return;
+            }
+            
+            const diff = matchDate - now;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('timer').textContent = 
+                `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+        }
+        
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        
+        // Popup automatico
+        function shouldShowPopup() {
+            const now = new Date();
+            const matchDate = new Date();
+            matchDate.setHours(MATCH_TIME.hour, MATCH_TIME.minute, 0);
+            
+            // Mostra popup da 23:00 a 23:05 (primi 5 minuti)
+            const fiveMinutesLater = new Date(matchDate.getTime() + 5 * 60 * 1000);
+            
+            return now >= matchDate && now <= fiveMinutesLater;
+        }
+        
+        function showPopup() {
+            document.getElementById('livePopup').classList.add('active');
+            
+            // Simula aggiornamento minuto
+            let minute = 1;
+            setInterval(() => {
+                minute++;
+                if (minute <= 45) {
+                    document.getElementById('popupMinute').textContent = `1° TEMPO • ${minute}'`;
+                }
+            }, 60000); // Ogni minuto reale = 1 minuto di gioco
+        }
+        
+        function closePopup() {
+            document.getElementById('livePopup').classList.remove('active');
+            localStorage.setItem('popupClosed', 'true');
+        }
+        
+        function minimizePopup() {
+            // Per ora chiude, si può migliorare
+            closePopup();
+        }
+        
+        // Controlla se mostrare il popup
+        if (shouldShowPopup() && localStorage.getItem('popupClosed') !== 'true') {
+            showPopup();
+        }
+        
+        // Simula gol (per demo)
+        setTimeout(() => {
+            if (document.getElementById('livePopup').classList.contains('active')) {
+                document.getElementById('popupScore').textContent = '1 - 0';
+                document.getElementById('popupMinute').textContent = '1° TEMPO • 23\' ⚽';
+            }
+        }, 30000); // Dopo 30 secondi mostra un gol
+    </script>
 </body>
 </html>
