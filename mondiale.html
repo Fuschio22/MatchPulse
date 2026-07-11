@@ -27,8 +27,6 @@
             padding-bottom: 10px;
             border-bottom: 2px solid rgba(255,255,255,0.1);
         }
-        
-        /* Match Card */
         .match-card {
             background: #242424;
             border-radius: 16px;
@@ -57,9 +55,6 @@
             flex: 1;
             text-align: center;
         }
-        .team.away {
-            text-align: center;
-        }
         .flag {
             font-size: 48px;
             margin-bottom: 8px;
@@ -77,13 +72,6 @@
             min-width: 60px;
             text-align: center;
         }
-        .score {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
         .match-info {
             margin-top: 20px;
             padding-top: 20px;
@@ -92,8 +80,6 @@
             color: rgba(255,255,255,0.6);
             font-size: 14px;
         }
-        
-        /* Recent Results */
         .result {
             background: #1a1a1a;
             padding: 16px;
@@ -108,8 +94,6 @@
             color: rgba(255,255,255,0.5);
             font-size: 13px;
         }
-        
-        /* LIVE POPUP */
         .live-popup {
             display: none;
             position: fixed;
@@ -233,8 +217,6 @@
             cursor: pointer;
             font-size: 20px;
         }
-        
-        /* Countdown */
         .countdown {
             background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(123,44,191,0.1));
             border: 2px solid #00d4ff;
@@ -255,8 +237,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        /* Responsive */
         @media (max-width: 480px) {
             .flag { font-size: 40px; }
             .popup-flag { font-size: 48px; }
@@ -266,9 +246,8 @@
     </style>
 </head>
 <body>
-    <h1>🏆 Mondiale 2026</h1>
+    <h1> Mondiale 2026</h1>
     
-    <!-- Countdown alla partita -->
     <div class="countdown" id="countdown">
         <div class="countdown-title">La partita inizia tra:</div>
         <div class="countdown-timer" id="timer">--:--:--</div>
@@ -283,14 +262,14 @@
                 <div class="team-name">Norvegia</div>
             </div>
             <div class="vs">VS</div>
-            <div class="team away">
-                <div class="flag">🏴󠁥</div>
+            <div class="team">
+                <div class="flag">🇬🇧</div>
                 <div class="team-name">Inghilterra</div>
             </div>
         </div>
         <div class="match-info">
-            📍 Wembley Stadium, Londra<br>
-            🎫 Ultimi biglietti disponibili
+             Wembley Stadium, Londra<br>
+             Ultimi biglietti disponibili
         </div>
     </div>
     
@@ -300,7 +279,7 @@
         <div class="result-date">10 Luglio 2026</div>
     </div>
     <div class="result">
-        <div class="result-score">🇷 Francia 2 - 0 Marocco 🇲🇦</div>
+        <div class="result-score">🇫🇷 Francia 2 - 0 Marocco 🇦</div>
         <div class="result-date">9 Luglio 2026</div>
     </div>
     <div class="result">
@@ -308,7 +287,6 @@
         <div class="result-date">7 Luglio 2026</div>
     </div>
     
-    <!-- LIVE POPUP -->
     <div class="live-popup" id="livePopup">
         <div class="popup-content">
             <button class="popup-minimize" onclick="minimizePopup()">−</button>
@@ -318,12 +296,12 @@
             </div>
             <div class="popup-teams">
                 <div class="popup-team">
-                    <div class="popup-flag">🇳🇴</div>
+                    <div class="popup-flag">🇳</div>
                     <div class="popup-team-name">Norvegia</div>
                 </div>
                 <div class="popup-score" id="popupScore">0 - 0</div>
                 <div class="popup-team">
-                    <div class="popup-flag">🏴󠁿</div>
+                    <div class="popup-flag">🇬🇧</div>
                     <div class="popup-team-name">Inghilterra</div>
                 </div>
             </div>
@@ -335,16 +313,13 @@
     <a href="index.html" style="display: block; text-align: center; margin-top: 30px; color: #00d4ff; text-decoration: none;">← Torna alla Home</a>
     
     <script>
-        // CONFIGURAZIONE
-        const MATCH_TIME = { hour: 23, minute: 0 }; // 23:00
+        const MATCH_TIME = { hour: 23, minute: 0 };
         
-        // Countdown
         function updateCountdown() {
             const now = new Date();
             const matchDate = new Date();
             matchDate.setHours(MATCH_TIME.hour, MATCH_TIME.minute, 0);
             
-            // Se è già passata la partita, nascondi countdown
             if (now > matchDate) {
                 document.getElementById('countdown').style.display = 'none';
                 return;
@@ -356,35 +331,29 @@
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
             
             document.getElementById('timer').textContent = 
-                `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+                String(hours).padStart(2,'0') + ':' + String(minutes).padStart(2,'0') + ':' + String(seconds).padStart(2,'0');
         }
         
         setInterval(updateCountdown, 1000);
         updateCountdown();
         
-        // Popup automatico
         function shouldShowPopup() {
             const now = new Date();
             const matchDate = new Date();
             matchDate.setHours(MATCH_TIME.hour, MATCH_TIME.minute, 0);
-            
-            // Mostra popup da 23:00 a 23:05 (primi 5 minuti)
             const fiveMinutesLater = new Date(matchDate.getTime() + 5 * 60 * 1000);
-            
             return now >= matchDate && now <= fiveMinutesLater;
         }
         
         function showPopup() {
             document.getElementById('livePopup').classList.add('active');
-            
-            // Simula aggiornamento minuto
             let minute = 1;
-            setInterval(() => {
+            setInterval(function() {
                 minute++;
                 if (minute <= 45) {
-                    document.getElementById('popupMinute').textContent = `1° TEMPO • ${minute}'`;
+                    document.getElementById('popupMinute').textContent = '1° TEMPO • ' + minute + "'";
                 }
-            }, 60000); // Ogni minuto reale = 1 minuto di gioco
+            }, 60000);
         }
         
         function closePopup() {
@@ -393,22 +362,19 @@
         }
         
         function minimizePopup() {
-            // Per ora chiude, si può migliorare
             closePopup();
         }
         
-        // Controlla se mostrare il popup
         if (shouldShowPopup() && localStorage.getItem('popupClosed') !== 'true') {
             showPopup();
         }
         
-        // Simula gol (per demo)
-        setTimeout(() => {
+        setTimeout(function() {
             if (document.getElementById('livePopup').classList.contains('active')) {
                 document.getElementById('popupScore').textContent = '1 - 0';
-                document.getElementById('popupMinute').textContent = '1° TEMPO • 23\' ⚽';
+                document.getElementById('popupMinute').textContent = "1° TEMPO • 23' ";
             }
-        }, 30000); // Dopo 30 secondi mostra un gol
+        }, 30000);
     </script>
 </body>
 </html>
