@@ -117,6 +117,7 @@
             object-fit: contain;
             display: block;
             flex-shrink: 0;
+            background: transparent;
         }
         .vs {
             color: var(--text-secondary);
@@ -187,7 +188,6 @@
         </a>
     </div>
 
-    <!-- Statistiche -->
     <div class="stats">
         <div class="stat-card">
             <div class="stat-value">38</div>
@@ -203,34 +203,41 @@
         </div>
     </div>
 
-    <!-- Calendario -->
     <div id="calendar"></div>
 
     <script>
-        const teamLogos = {
-            "Atalanta": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Atalanta_BC_Logo.svg",
-            "Bologna": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Bologna_FC_1909_logo.svg",
-            "Cagliari": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Cagliari_Calcio_1920.svg",
-            "Como": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Como_1907_Logo.svg",
-            "Fiorentina": "https://upload.wikimedia.org/wikipedia/commons/9/9c/ACF_Fiorentina_Logo.svg",
-            "Frosinone": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Frosinone_Calcio_Logo.svg",
-            "Genoa": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Genoa_CFC_Logo.svg",
-            "Inter": "https://upload.wikimedia.org/wikipedia/commons/9/9b/FC_Internazionale_Milano_Logo.svg",
-            "Juventus": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Juventus_FC_Logo_2017.svg",
-            "Lazio": "https://upload.wikimedia.org/wikipedia/commons/9/9b/SS_Lazio_Logo.svg",
-            "Lecce": "https://upload.wikimedia.org/wikipedia/commons/9/9c/US_Lecce_Logo.svg",
-            "Milan": "https://upload.wikimedia.org/wikipedia/commons/9/9b/AC_Milan_Logo.svg",
-            "Monza": "https://upload.wikimedia.org/wikipedia/commons/9/9c/AC_Monza_Logo.svg",
-            "Napoli": "https://upload.wikimedia.org/wikipedia/commons/9/9b/SSC_Napoli_Logo.svg",
-            "Parma": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Parma_Calcio_1913_Logo.svg",
-            "Roma": "https://upload.wikimedia.org/wikipedia/commons/9/9b/AS_Roma_Logo.svg",
-            "Sassuolo": "https://upload.wikimedia.org/wikipedia/commons/9/9c/US_Sassuolo_Calcio_Logo.svg",
-            "Torino": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Torino_FC_Logo.svg",
-            "Udinese": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Udinese_Calcio_Logo.svg",
-            "Venezia": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Venezia_FC_Logo.svg"
-        };
+        // Logo fallback SVG inline (pallone rosso/blu Cagliari)
+        const defaultLogo = 'data:image/svg+xml;utf8,' + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#c8102e" stroke="#003da5" stroke-width="3"/>
+                <circle cx="50" cy="50" r="20" fill="white" opacity="0.3"/>
+                <text x="50" y="57" font-size="30" text-anchor="middle" fill="white" font-weight="bold"></text>
+            </svg>
+        `);
 
-        const defaultLogo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23c8102e' stroke='%23003da5' stroke-width='3'/%3E%3Ctext x='50' y='60' font-size='40' text-anchor='middle' fill='white' font-weight='bold'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E";
+        // Loghi da API-Football (CDN affidabile)
+        const teamLogos = {
+            "Atalanta": "https://media.api-sports.io/football/teams/499.png",
+            "Bologna": "https://media.api-sports.io/football/teams/500.png",
+            "Cagliari": "https://media.api-sports.io/football/teams/490.png",
+            "Como": "https://media.api-sports.io/football/teams/511.png",
+            "Fiorentina": "https://media.api-sports.io/football/teams/502.png",
+            "Frosinone": "https://media.api-sports.io/football/teams/512.png",
+            "Genoa": "https://media.api-sports.io/football/teams/495.png",
+            "Inter": "https://media.api-sports.io/football/teams/505.png",
+            "Juventus": "https://media.api-sports.io/football/teams/496.png",
+            "Lazio": "https://media.api-sports.io/football/teams/487.png",
+            "Lecce": "https://media.api-sports.io/football/teams/867.png",
+            "Milan": "https://media.api-sports.io/football/teams/489.png",
+            "Monza": "https://media.api-sports.io/football/teams/1579.png",
+            "Napoli": "https://media.api-sports.io/football/teams/492.png",
+            "Parma": "https://media.api-sports.io/football/teams/506.png",
+            "Roma": "https://media.api-sports.io/football/teams/497.png",
+            "Sassuolo": "https://media.api-sports.io/football/teams/488.png",
+            "Torino": "https://media.api-sports.io/football/teams/503.png",
+            "Udinese": "https://media.api-sports.io/football/teams/494.png",
+            "Venezia": "https://media.api-sports.io/football/teams/517.png"
+        };
 
         const matches = [
             { day: 1, date: '23/08/2026', home: 'Parma', away: 'Cagliari', venue: 'Stadio Ennio Tardini' },
@@ -280,13 +287,6 @@
             const homeLogo = teamLogos[match.home] || defaultLogo;
             const awayLogo = teamLogos[match.away] || defaultLogo;
             
-            if (!teamLogos[match.home]) {
-                console.warn(`Logo mancante per: ${match.home}`);
-            }
-            if (!teamLogos[match.away]) {
-                console.warn(`Logo mancante per: ${match.away}`);
-            }
-            
             const div = document.createElement('div');
             div.className = 'matchday';
             div.innerHTML = `
@@ -308,7 +308,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="match-date"> ${match.venue}</div>
+                    <div class="match-date">📍 ${match.venue}</div>
                 </div>
             `;
             calendar.appendChild(div);
