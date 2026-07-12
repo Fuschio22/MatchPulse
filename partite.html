@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Cagliari - Serie A</title>
+    <title>Calendario Cagliari 2026/27 - Serie A</title>
     <style>
         :root {
             --cagliari-red: #c8102e;
             --cagliari-blue: #003da5;
             --bg-primary: #0a0a0a;
             --bg-card: #1a1a1a;
+            --bg-card-hover: #242424;
             --text-primary: #ffffff;
             --text-secondary: rgba(255,255,255,0.7);
+            --home: #00ff88;
+            --away: #ffaa00;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -24,7 +27,7 @@
         .header {
             text-align: center;
             padding: 20px 0;
-            border-bottom: 2px solid var(--cagliari-red);
+            border-bottom: 3px solid var(--cagliari-red);
             margin-bottom: 30px;
         }
         .header h1 {
@@ -39,187 +42,208 @@
             text-decoration: none;
             margin-bottom: 20px;
             font-weight: 600;
+            font-size: 14px;
+        }
+        .live-banner {
+            background: linear-gradient(135deg, var(--cagliari-red), var(--cagliari-blue));
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .live-banner a {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
         }
         .section-title {
-            font-size: 20px;
+            font-size: 18px;
             margin: 30px 0 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid rgba(255,255,255,0.1);
         }
+        .matchday {
+            margin-bottom: 24px;
+        }
+        .matchday-header {
+            background: var(--cagliari-red);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 700;
+            font-size: 14px;
+        }
         .match-card {
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: 0 0 8px 8px;
             padding: 16px;
-            margin-bottom: 12px;
             border-left: 4px solid var(--cagliari-red);
+            margin-bottom: 8px;
         }
-        .match-card.live {
-            border-left-color: #ff3366;
-            animation: pulse 2s infinite;
+        .match-card.home {
+            border-left-color: var(--home);
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        .match-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
+        .match-card.away {
+            border-left-color: var(--away);
         }
         .match-teams {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 14px;
         }
-        .team {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
+        .match-teams .vs {
+            color: var(--text-secondary);
+            font-size: 12px;
         }
-        .team.away {
-            justify-content: flex-end;
+        .match-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
         }
-        .score {
-            font-size: 20px;
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .badge-home {
+            background: var(--home);
+            color: black;
+        }
+        .badge-away {
+            background: var(--away);
+            color: black;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
             font-weight: 800;
             color: var(--cagliari-red);
-            min-width: 60px;
-            text-align: center;
         }
-        .score.live {
-            color: #ff3366;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
+        .stat-label {
+            font-size: 12px;
             color: var(--text-secondary);
+            margin-top: 4px;
         }
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .tab {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .tab.active {
-            background: var(--cagliari-red);
-            border-color: var(--cagliari-red);
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📅 Calendario Cagliari</h1>
+        <h1>📅 Calendario Cagliari 2026/27</h1>
     </div>
     
     <a href="index.html" class="back-link">← Torna alla Home</a>
     
-    <div class="tabs">
-        <div class="tab active" onclick="showTab('upcoming')">Prossime</div>
-        <div class="tab" onclick="showTab('recent')">Recenti</div>
-        <div class="tab" onclick="showTab('all')">Tutte</div>
+    <div class="live-banner">
+        <a href="https://www.diretta.it/calcio/italia/serie-a/cagliari/" target="_blank">
+            🔴 Risultati Live su Diretta.it
+        </a>
     </div>
-    
-    <div id="matchesContainer">
-        <div class="loading">Caricamento...</div>
+
+    <!-- Statistiche -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value">38</div>
+            <div class="stat-label">Partite Totali</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">19</div>
+            <div class="stat-label">In Casa</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">19</div>
+            <div class="stat-label">In Trasferta</div>
+        </div>
     </div>
+
+    <!-- Calendario -->
+    <div id="calendar"></div>
 
     <script>
-        const API_KEY = 'cdd1a87ea50a411880249e70138e0233';
-        const API_BASE = 'https://api.football-data.org/v4';
-        const CAGLIARI_ID = 115;
+        const matches = [
+            { day: 1, date: '23/08/2026', home: 'Parma', away: 'Cagliari', venue: 'Stadio Ennio Tardini' },
+            { day: 2, date: '30/08/2026', home: 'Cagliari', away: 'Inter', venue: 'Unipol Domus' },
+            { day: 3, date: '06/09/2026', home: 'Cagliari', away: 'Lecce', venue: 'Unipol Domus' },
+            { day: 4, date: '13/09/2026', home: 'Atalanta', away: 'Cagliari', venue: 'Gewiss Stadium' },
+            { day: 5, date: '20/09/2026', home: 'Udinese', away: 'Cagliari', venue: 'Bluenergy Stadium' },
+            { day: 6, date: '11/10/2026', home: 'Cagliari', away: 'Juventus', venue: 'Unipol Domus' },
+            { day: 7, date: '18/10/2026', home: 'Monza', away: 'Cagliari', venue: 'U-Power Stadium' },
+            { day: 8, date: '25/10/2026', home: 'Cagliari', away: 'Bologna', venue: 'Unipol Domus' },
+            { day: 9, date: '28/10/2026', home: 'Roma', away: 'Cagliari', venue: 'Stadio Olimpico' },
+            { day: 10, date: '01/11/2026', home: 'Lazio', away: 'Cagliari', venue: 'Stadio Olimpico' },
+            { day: 11, date: '08/11/2026', home: 'Cagliari', away: 'Frosinone', venue: 'Unipol Domus' },
+            { day: 12, date: '22/11/2026', home: 'Como', away: 'Cagliari', venue: 'Stadio Giuseppe Sinigaglia' },
+            { day: 13, date: '29/11/2026', home: 'Cagliari', away: 'Milan', venue: 'Unipol Domus' },
+            { day: 14, date: '06/12/2026', home: 'Fiorentina', away: 'Cagliari', venue: 'Stadio Artemio Franchi' },
+            { day: 15, date: '13/12/2026', home: 'Cagliari', away: 'Venezia', venue: 'Unipol Domus' },
+            { day: 16, date: '20/12/2026', home: 'Torino', away: 'Cagliari', venue: 'Stadio Olimpico Grande Torino' },
+            { day: 17, date: '03/01/2027', home: 'Cagliari', away: 'Genoa', venue: 'Unipol Domus' },
+            { day: 18, date: '06/01/2027', home: 'Napoli', away: 'Cagliari', venue: 'Stadio Diego Armando Maradona' },
+            { day: 19, date: '10/01/2027', home: 'Cagliari', away: 'Sassuolo', venue: 'Unipol Domus' },
+            { day: 20, date: '17/01/2027', home: 'Cagliari', away: 'Como', venue: 'Unipol Domus' },
+            { day: 21, date: '24/01/2027', home: 'Juventus', away: 'Cagliari', venue: 'Allianz Stadium' },
+            { day: 22, date: '31/01/2027', home: 'Cagliari', away: 'Parma', venue: 'Unipol Domus' },
+            { day: 23, date: '07/02/2027', home: 'Inter', away: 'Cagliari', venue: 'San Siro' },
+            { day: 24, date: '14/02/2027', home: 'Cagliari', away: 'Lazio', venue: 'Unipol Domus' },
+            { day: 25, date: '21/02/2027', home: 'Venezia', away: 'Cagliari', venue: 'Stadio Pier Luigi Penzo' },
+            { day: 26, date: '28/02/2027', home: 'Cagliari', away: 'Udinese', venue: 'Unipol Domus' },
+            { day: 27, date: '07/03/2027', home: 'Milan', away: 'Cagliari', venue: 'San Siro' },
+            { day: 28, date: '14/03/2027', home: 'Cagliari', away: 'Fiorentina', venue: 'Unipol Domus' },
+            { day: 29, date: '21/03/2027', home: 'Cagliari', away: 'Napoli', venue: 'Unipol Domus' },
+            { day: 30, date: '04/04/2027', home: 'Cagliari', away: 'Napoli', venue: 'Unipol Domus' },
+            { day: 31, date: '11/04/2027', home: 'Cagliari', away: 'Atalanta', venue: 'Unipol Domus' },
+            { day: 32, date: '18/04/2027', home: 'Bologna', away: 'Cagliari', venue: 'Stadio Renato Dall\'Ara' },
+            { day: 33, date: '25/04/2027', home: 'Cagliari', away: 'Monza', venue: 'Unipol Domus' },
+            { day: 34, date: '02/05/2027', home: 'Lecce', away: 'Cagliari', venue: 'Stadio Via del Mare' },
+            { day: 35, date: '09/05/2027', home: 'Genoa', away: 'Cagliari', venue: 'Stadio Luigi Ferraris' },
+            { day: 36, date: '16/05/2027', home: 'Cagliari', away: 'Torino', venue: 'Unipol Domus' },
+            { day: 37, date: '23/05/2027', home: 'Frosinone', away: 'Cagliari', venue: 'Stadio Benito Stirpe' },
+            { day: 38, date: '30/05/2027', home: 'Cagliari', away: 'Frosinone', venue: 'Unipol Domus' }
+        ];
+
+        const calendar = document.getElementById('calendar');
         
-        let allMatches = [];
-
-        async function loadMatches() {
-            try {
-                const response = await fetch(`${API_BASE}/teams/${CAGLIARI_ID}/matches?season=2024`, {
-                    headers: { 'X-Auth-Token': API_KEY }
-                });
-                const data = await response.json();
-                allMatches = data.matches || [];
-                showTab('upcoming');
-            } catch (error) {
-                document.getElementById('matchesContainer').innerHTML = '<div class="loading">Errore nel caricamento</div>';
-            }
-        }
-
-        function showTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+        matches.forEach(match => {
+            const isHome = match.home === 'Cagliari';
+            const opponent = isHome ? match.away : match.home;
             
-            let filtered = [];
-            const now = new Date();
-            
-            if (tab === 'upcoming') {
-                filtered = allMatches.filter(m => new Date(m.utcDate) > now && m.status === 'SCHEDULED');
-            } else if (tab === 'recent') {
-                filtered = allMatches.filter(m => m.status === 'FINISHED').slice(-5);
-            } else {
-                filtered = allMatches;
-            }
-            
-            renderMatches(filtered);
-        }
-
-        function renderMatches(matches) {
-            if (matches.length === 0) {
-                document.getElementById('matchesContainer').innerHTML = '<div class="loading">Nessuna partita</div>';
-                return;
-            }
-            
-            const html = matches.map(match => {
-                const matchDate = new Date(match.utcDate);
-                const isLive = ['LIVE', 'IN_PLAY', 'PAUSED'].includes(match.status);
-                const isFinished = match.status === 'FINISHED';
-                const isHome = match.homeTeam.id === CAGLIARI_ID;
-                
-                let scoreText = matchDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-                if (isFinished) {
-                    scoreText = `${match.score.fullTime.home} - ${match.score.fullTime.away}`;
-                } else if (isLive) {
-                    scoreText = `${match.score.fullTime.home || 0} - ${match.score.fullTime.away || 0}`;
-                }
-                
-                return `
-                    <div class="match-card ${isLive ? 'live' : ''}">
-                        <div class="match-header">
-                            <span>${match.competition.name}</span>
-                            <span>${isLive ? '🔴 LIVE ' + (match.minute || '') + "'" : matchDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                        </div>
-                        <div class="match-teams">
-                            <div class="team">
-                                <span>${isHome ? '🔴🔵' : '⚽'}</span>
-                                <span>${match.homeTeam.name}</span>
-                            </div>
-                            <div class="score ${isLive ? 'live' : ''}">${scoreText}</div>
-                            <div class="team away">
-                                <span>${match.awayTeam.name}</span>
-                                <span>${!isHome ? '🔵' : '⚽'}</span>
-                            </div>
-                        </div>
-                        ${match.venue ? `<div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">📍 ${match.venue}</div>` : ''}
+            const div = document.createElement('div');
+            div.className = 'matchday';
+            div.innerHTML = `
+                <div class="matchday-header">
+                    Giornata ${match.day} - ${match.date}
+                </div>
+                <div class="match-card ${isHome ? 'home' : 'away'}">
+                    <div class="match-teams">
+                        <span>${match.home}</span>
+                        <span class="vs">VS</span>
+                        <span>${match.away}</span>
+                        <span class="badge ${isHome ? 'badge-home' : 'badge-away'}">
+                            ${isHome ? 'CASA' : 'TRASFERTA'}
+                        </span>
                     </div>
-                `;
-            }).join('');
-            
-            document.getElementById('matchesContainer').innerHTML = html;
-        }
-
-        loadMatches();
-        setInterval(loadMatches, 60000);
+                    <div class="match-date">📍 ${match.venue}</div>
+                </div>
+            `;
+            calendar.appendChild(div);
+        });
     </script>
 </body>
 </html>
