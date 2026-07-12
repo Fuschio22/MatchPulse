@@ -10,11 +10,11 @@
             --cagliari-blue: #003da5;
             --bg-primary: #0a0a0a;
             --bg-card: #1a1a1a;
-            --bg-card-hover: #242424;
+            --bg-card-hover: #2a2a2a;
             --text-primary: #ffffff;
-            --text-secondary: rgba(255,255,255,0.7);
-            --home: #00ff88;
-            --away: #ffaa00;
+            --text-secondary: rgba(255,255,255,0.8);
+            --home: #00c853;
+            --away: #2979ff;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -23,15 +23,17 @@
             color: var(--text-primary);
             padding: 20px;
             padding-bottom: 100px;
+            font-size: 16px;
         }
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding: 30px 20px;
             border-bottom: 3px solid var(--cagliari-red);
             margin-bottom: 30px;
         }
         .header h1 {
-            font-size: 24px;
+            font-size: 32px;
+            font-weight: 800;
             background: linear-gradient(135deg, var(--cagliari-red), var(--cagliari-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -41,44 +43,50 @@
             color: var(--cagliari-red);
             text-decoration: none;
             margin-bottom: 20px;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 18px;
         }
         .live-banner {
             background: linear-gradient(135deg, var(--cagliari-red), var(--cagliari-blue));
             border-radius: 12px;
-            padding: 16px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         .live-banner a {
             color: white;
             text-decoration: none;
             font-weight: 700;
+            font-size: 18px;
         }
         .section-title {
-            font-size: 18px;
-            margin: 30px 0 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
+            font-size: 26px;
+            margin: 40px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid rgba(255,255,255,0.1);
+            font-weight: 700;
         }
         .matchday {
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
         .matchday-header {
             background: var(--cagliari-red);
             color: white;
-            padding: 12px 16px;
-            border-radius: 8px 8px 0 0;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 20px;
         }
         .match-card {
             background: var(--bg-card);
-            border-radius: 0 0 8px 8px;
-            padding: 16px;
-            border-left: 4px solid var(--cagliari-red);
-            margin-bottom: 8px;
+            border-radius: 0 0 12px 12px;
+            padding: 20px;
+            border-left: 5px solid var(--cagliari-red);
+            margin-bottom: 12px;
+            transition: background 0.3s;
+        }
+        .match-card:hover {
+            background: var(--bg-card-hover);
         }
         .match-card.home {
             border-left-color: var(--home);
@@ -90,57 +98,75 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            gap: 16px;
         }
-        .match-teams .vs {
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .team.away {
+            justify-content: flex-end;
+        }
+        .team-flag {
+            font-size: 32px;
+        }
+        .vs {
             color: var(--text-secondary);
-            font-size: 12px;
+            font-size: 16px;
+            font-weight: 700;
         }
         .match-date {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-top: 8px;
+            margin-top: 12px;
+            font-weight: 500;
         }
         .badge {
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: 700;
-            margin-left: 8px;
+            margin-left: 12px;
         }
         .badge-home {
             background: var(--home);
-            color: black;
+            color: white;
         }
         .badge-away {
             background: var(--away);
-            color: black;
+            color: white;
         }
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 20px 0;
+            gap: 16px;
+            margin: 30px 0;
         }
         .stat-card {
             background: var(--bg-card);
             border-radius: 12px;
-            padding: 16px;
+            padding: 20px;
             text-align: center;
         }
         .stat-value {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 800;
             color: var(--cagliari-red);
         }
         .stat-label {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-top: 4px;
+            margin-top: 8px;
+            font-weight: 600;
         }
         @media (max-width: 480px) {
             .stats { grid-template-columns: 1fr; }
+            .match-teams { font-size: 16px; }
         }
     </style>
 </head>
@@ -177,6 +203,29 @@
     <div id="calendar"></div>
 
     <script>
+        const teamFlags = {
+            'Cagliari': '🔴🔵',
+            'Parma': '🟦⬜',
+            'Inter': '⚫',
+            'Lecce': '🟡🔴',
+            'Atalanta': '🔵⚫',
+            'Udinese': '⬜',
+            'Juventus': '⚫⬜',
+            'Monza': '🔴⚪',
+            'Bologna': '🔴',
+            'Roma': '🟡🔴',
+            'Lazio': '🔵⬜',
+            'Frosinone': '🟡',
+            'Como': '🔵',
+            'Milan': '🔴⚫',
+            'Fiorentina': '🟣',
+            'Venezia': '⚫',
+            'Torino': '🟥⬜',
+            'Genoa': '🔴🔵',
+            'Napoli': '🔵',
+            'Sassuolo': '🟢⚫'
+        };
+
         const matches = [
             { day: 1, date: '23/08/2026', home: 'Parma', away: 'Cagliari', venue: 'Stadio Ennio Tardini' },
             { day: 2, date: '30/08/2026', home: 'Cagliari', away: 'Inter', venue: 'Unipol Domus' },
@@ -222,7 +271,8 @@
         
         matches.forEach(match => {
             const isHome = match.home === 'Cagliari';
-            const opponent = isHome ? match.away : match.home;
+            const homeFlag = teamFlags[match.home] || '⚽';
+            const awayFlag = teamFlags[match.away] || '⚽';
             
             const div = document.createElement('div');
             div.className = 'matchday';
@@ -232,12 +282,18 @@
                 </div>
                 <div class="match-card ${isHome ? 'home' : 'away'}">
                     <div class="match-teams">
-                        <span>${match.home}</span>
+                        <div class="team">
+                            <span class="team-flag">${homeFlag}</span>
+                            <span>${match.home}</span>
+                        </div>
                         <span class="vs">VS</span>
-                        <span>${match.away}</span>
-                        <span class="badge ${isHome ? 'badge-home' : 'badge-away'}">
-                            ${isHome ? 'CASA' : 'TRASFERTA'}
-                        </span>
+                        <div class="team away">
+                            <span>${match.away}</span>
+                            <span class="team-flag">${awayFlag}</span>
+                            <span class="badge ${isHome ? 'badge-home' : 'badge-away'}">
+                                ${isHome ? 'CASA' : 'TRASFERTA'}
+                            </span>
+                        </div>
                     </div>
                     <div class="match-date">📍 ${match.venue}</div>
                 </div>
