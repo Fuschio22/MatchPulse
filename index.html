@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#c8102e">
     <title>Cagliari Tracker - Serie A</title>
-    <link rel="stylesheet" href="css/style.css">
     <style>
         :root {
             --cagliari-red: #c8102e;
@@ -14,7 +13,6 @@
             --bg-card: #1a1a1a;
             --text-primary: #ffffff;
             --text-secondary: rgba(255,255,255,0.7);
-            --accent: #c8102e;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -138,14 +136,14 @@
             min-width: 60px;
             text-align: center;
         }
-        .status-live {
-            color: #ff3366;
+        .result-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 700;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            color: white;
+            margin-top: 8px;
         }
         .nav-links {
             display: flex;
@@ -203,29 +201,25 @@
 </head>
 <body>
     <div class="header">
-        <h1>🔴 Cagliari Tracker</h1>
-        <p>Serie A 2024/25 - Tutti gli aggiornamenti</p>
+        <h1>🔴🔵 Cagliari Tracker</h1>
+        <p>Serie A 2025/26 - Tutti gli aggiornamenti</p>
     </div>
 
-    <!-- Notifiche -->
     <div class="notification-banner" id="notifBanner">
-        <div style="font-weight: 700; margin-bottom: 8px;"> Ricevi notifiche live</div>
+        <div style="font-weight: 700; margin-bottom: 8px;">🔔 Ricevi notifiche live</div>
         <div style="font-size: 14px; opacity: 0.9;">Avvisi quando il Cagliari gioca</div>
         <button onclick="enableNotifications()">Attiva Notifiche</button>
     </div>
 
-    <!-- Prossima Partita -->
     <div class="next-match" id="nextMatch">
         <div class="loading">Caricamento prossima partita...</div>
     </div>
 
-    <!-- Ultime Partite -->
     <h2 class="section-title">Ultime Partite</h2>
     <div id="recentMatches">
         <div class="loading">Caricamento...</div>
     </div>
 
-    <!-- Navigazione -->
     <div class="nav-links">
         <a href="partite.html" class="nav-link">📅 Calendario</a>
         <a href="classifica.html" class="nav-link">🏆 Classifica</a>
@@ -234,74 +228,122 @@
     <script>
         const API_KEY = 'cdd1a87ea50a411880249e70138e0233';
         const API_BASE = 'https://api.football-data.org/v4';
-        const CAGLIARI_ID = 115;
         const SERIE_A_CODE = 'SA';
+        const CAGLIARI_NAME = 'Cagliari';
+
+        // Trova l'ID del Cagliari dalle partite di Serie A
+        async function findCagliariId() {
+            try {
+                const response = await fetch(`${API_BASE}/competitions/${SERIE_A_CODE}/teams`, {
+                    headers: { 'X-Auth-Token': API_KEY }
+                });
+                const data = await response.json();
+                const cagliari = data.teams.find(t => t.name.includes('Cagliari'));
+                return cagliari ? cagliari.id : null;
+            } catch (error) {
+                console.error('Errore nel trovare ID Cagliari:', error);
+                return null;
+            }
+        }
 
         // Carica prossima partita
         async function loadNextMatch() {
             try {
-                const response = await fetch(`${API_BASE}/teams/${CAGLIARI_ID}/matches?status=SCHEDULED`, {
+                console.log('Caricamento prossima partita...');
+                
+                // Usa endpoint competizioni/matches e filtra per Cagliari
+                const response = await fetch(`${API_BASE}/competitions/${SERIE_A_CODE}/matches?status=SCHEDULED`, {
                     headers: { 'X-Auth-Token': API_KEY }
                 });
-                const data = await response.json();
                 
-                if (data.matches && data.matches.length > 0) {
-                    const match = data.matches[0];
+                if (!response.ok) {
+                    throw new Error('API Error: ' + response.status);
+                }
+                
+                const data = await response.json();
+                console.log('Partite ricevute:', data.matches ? data.matches.length : 0);
+                
+                // Filtra partite del Cagliari
+                const cagliariMatches = data.matches.filter(m => 
+                    m.homeTeam.name.includes('Cagliari') || m.awayTeam.name.includes('Cagliari')
+                );
+                
+                console.log('Partite Cagliari trovate:', cagliariMatches.length);
+                
+                if (cagliariMatches.length > 0) {
+                    const match = cagliariMatches[0];
                     const matchDate = new Date(match.utcDate);
                     const now = new Date();
                     const diff = matchDate - now;
                     
-                    const hours = Math.floor(diff / (1000 * 60 * 60));
-                    const days = Math.floor(hours / 24);
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                     
                     document.getElementById('nextMatch').innerHTML = `
                         <div class="next-match-label">Prossima Partita</div>
                         <div class="next-match-teams">
                             <div class="team">
-                                <div class="team-logo">${match.homeTeam.shortName === 'CAG' ? '🔵' : '⚽'}</div>
+                                <div class="team-logo">🔴</div>
                                 <div class="team-name">${match.homeTeam.name}</div>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <div class="team-logo">${match.awayTeam.shortName === 'CAG' ? '🔵' : '⚽'}</div>
+                                <div class="team-logo">⚽</div>
                                 <div class="team-name">${match.awayTeam.name}</div>
                             </div>
                         </div>
                         <div class="match-info">
-                            ${matchDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })} • ${matchDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}<br>
-                            ${match.venue || 'Stadio da definire'}
+                            📅 ${matchDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}<br>
+                            🕐 ${matchDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}<br>
+                            📍 ${match.venue || 'Stadio da definire'}
                         </div>
                         <div class="countdown">
                             <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Inizia tra:</div>
-                            <div class="countdown-timer">${days > 0 ? days + 'g ' : ''}${hours % 24}h ${Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))}m</div>
+                            <div class="countdown-timer">${days}g ${hours}h ${minutes}m</div>
                         </div>
                     `;
                     
-                    // Programma notifica
                     scheduleMatchNotification(match);
                 } else {
                     document.getElementById('nextMatch').innerHTML = '<div class="loading">Nessuna partita in programma</div>';
                 }
             } catch (error) {
-                document.getElementById('nextMatch').innerHTML = '<div class="error">Errore nel caricamento. Riprova più tardi.</div>';
+                console.error('Errore caricamento:', error);
+                document.getElementById('nextMatch').innerHTML = '<div class="error">Errore: ' + error.message + '</div>';
             }
         }
 
         // Carica ultime partite
         async function loadRecentMatches() {
             try {
-                const response = await fetch(`${API_BASE}/teams/${CAGLIARI_ID}/matches?status=FINISHED&limit=5`, {
+                console.log('Caricamento ultime partite...');
+                
+                const response = await fetch(`${API_BASE}/competitions/${SERIE_A_CODE}/matches?status=FINISHED`, {
                     headers: { 'X-Auth-Token': API_KEY }
                 });
-                const data = await response.json();
                 
-                if (data.matches && data.matches.length > 0) {
-                    const html = data.matches.slice(0, 5).map(match => {
+                if (!response.ok) {
+                    throw new Error('API Error: ' + response.status);
+                }
+                
+                const data = await response.json();
+                console.log('Partite finite ricevute:', data.matches ? data.matches.length : 0);
+                
+                // Filtra partite del Cagliari
+                const cagliariMatches = data.matches.filter(m => 
+                    m.homeTeam.name.includes('Cagliari') || m.awayTeam.name.includes('Cagliari')
+                ).slice(-5);
+                
+                console.log('Partite Cagliari trovate:', cagliariMatches.length);
+                
+                if (cagliariMatches.length > 0) {
+                    const html = cagliariMatches.map(match => {
                         const matchDate = new Date(match.utcDate);
-                        const isHome = match.homeTeam.id === CAGLIARI_ID;
+                        const isHome = match.homeTeam.name.includes('Cagliari');
                         const cagliariScore = isHome ? match.score.fullTime.home : match.score.fullTime.away;
                         const opponentScore = isHome ? match.score.fullTime.away : match.score.fullTime.home;
-                        const opponent = isHome ? match.awayTeam : match.homeTeam;
+                        const opponent = isHome ? match.awayTeam.name : match.homeTeam.name;
                         const result = cagliariScore > opponentScore ? 'V' : (cagliariScore < opponentScore ? 'S' : 'P');
                         const resultColor = result === 'V' ? '#00ff88' : (result === 'S' ? '#ff3366' : '#ffaa00');
                         
@@ -309,21 +351,21 @@
                             <div class="match-card">
                                 <div class="match-card-header">
                                     <span>${match.competition.name}</span>
-                                    <span>${matchDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}</span>
+                                    <span>${matchDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                 </div>
                                 <div class="match-card-teams">
                                     <div class="match-card-team">
-                                        <span style="font-size: 20px;">${isHome ? '🔴' : '⚽'}</span>
-                                        <span>${match.homeTeam.shortName}</span>
+                                        <span>🔴🔵</span>
+                                        <span>${match.homeTeam.name}</span>
                                     </div>
                                     <div class="match-card-score">${match.score.fullTime.home} - ${match.score.fullTime.away}</div>
                                     <div class="match-card-team away">
-                                        <span>${match.awayTeam.shortName}</span>
-                                        <span style="font-size: 20px;">${!isHome ? '🔴🔵' : '⚽'}</span>
+                                        <span>${match.awayTeam.name}</span>
+                                        <span></span>
                                     </div>
                                 </div>
-                                <div style="text-align: center; margin-top: 8px;">
-                                    <span style="background: ${resultColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;">${result}</span>
+                                <div style="text-align: center;">
+                                    <span class="result-badge" style="background: ${resultColor};">${result === 'V' ? 'Vittoria' : (result === 'S' ? 'Sconfitta' : 'Pareggio')}</span>
                                 </div>
                             </div>
                         `;
@@ -331,10 +373,11 @@
                     
                     document.getElementById('recentMatches').innerHTML = html;
                 } else {
-                    document.getElementById('recentMatches').innerHTML = '<div class="loading">Nessuna partita recente</div>';
+                    document.getElementById('recentMatches').innerHTML = '<div class="loading">Nessuna partita recente del Cagliari</div>';
                 }
             } catch (error) {
-                document.getElementById('recentMatches').innerHTML = '<div class="error">Errore nel caricamento</div>';
+                console.error('Errore caricamento:', error);
+                document.getElementById('recentMatches').innerHTML = '<div class="error">Errore: ' + error.message + '</div>';
             }
         }
 
@@ -345,7 +388,7 @@
                     if (permission === 'granted') {
                         document.getElementById('notifBanner').style.display = 'none';
                         localStorage.setItem('cagliariNotif', 'true');
-                        alert('✅ Notifiche attivate! Riceverai avvisi per le partite del Cagliari.');
+                        alert('✅ Notifiche attivate!');
                     }
                 });
             }
@@ -359,12 +402,11 @@
             const now = new Date();
             const diff = matchDate - now;
             
-            // Notifica 1 ora prima
             if (diff > 0 && diff < 24 * 60 * 60 * 1000) {
                 setTimeout(() => {
-                    new Notification('🔴🔵 Cagliari', {
+                    new Notification('🔴 Cagliari', {
                         body: `${match.homeTeam.name} vs ${match.awayTeam.name}\nInizia tra 1 ora!`,
-                        icon: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Cagliari_Calcio_1920.svg/200px-Cagliari_Calcio_1920.svg.png'
+                        tag: 'cagliari-match'
                     });
                 }, diff - 3600000);
             }
