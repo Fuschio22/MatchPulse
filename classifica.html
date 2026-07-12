@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classifica Serie A - Cagliari Tracker</title>
+    <title>Classifica Serie A 2026/27 - Cagliari Tracker</title>
     <style>
         :root {
             --cagliari-red: #c8102e;
@@ -12,6 +12,9 @@
             --bg-card: #1a1a1a;
             --text-primary: #ffffff;
             --text-secondary: rgba(255,255,255,0.7);
+            --champions: #00ff88;
+            --europa: #ffaa00;
+            --relegation: #ff3366;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -24,7 +27,7 @@
         .header {
             text-align: center;
             padding: 20px 0;
-            border-bottom: 2px solid var(--cagliari-red);
+            border-bottom: 3px solid var(--cagliari-red);
             margin-bottom: 30px;
         }
         .header h1 {
@@ -39,145 +42,138 @@
             text-decoration: none;
             margin-bottom: 20px;
             font-weight: 600;
-        }
-        .standings-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-card);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .standings-table th {
-            background: rgba(200,16,46,0.2);
-            padding: 12px 8px;
-            text-align: left;
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-        .standings-table td {
-            padding: 12px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 14px;
         }
-        .standings-table tr.cagliari {
-            background: rgba(200,16,46,0.15);
-            font-weight: 700;
-        }
-        .standings-table tr.champions {
-            border-left: 3px solid #00ff88;
-        }
-        .standings-table tr.europa {
-            border-left: 3px solid #ffaa00;
-        }
-        .standings-table tr.relegation {
-            border-left: 3px solid #ff3366;
-        }
-        .position {
-            font-weight: 700;
-            color: var(--text-secondary);
-            width: 30px;
-        }
-        .team-name {
-            flex: 1;
-        }
-        .points {
-            font-weight: 800;
-            color: var(--cagliari-red);
-            font-size: 16px;
-        }
-        .loading {
+        .live-banner {
+            background: linear-gradient(135deg, var(--cagliari-red), var(--cagliari-blue));
+            border-radius: 12px;
+            padding: 16px;
             text-align: center;
-            padding: 40px;
+            margin-bottom: 20px;
+        }
+        .live-banner a {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .info-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        .info-box h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--cagliari-red);
+        }
+        .info-box p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .teams-list {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .teams-list h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
             color: var(--text-secondary);
         }
-        .cagliari-badge {
-            background: var(--cagliari-red);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 8px;
+        .team-tag {
+            display: inline-block;
+            background: rgba(200,16,46,0.2);
+            border: 1px solid var(--cagliari-red);
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin: 4px;
+            font-size: 12px;
+        }
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🏆 Classifica Serie A</h1>
+        <h1>🏆 Classifica Serie A 2026/27</h1>
     </div>
     
     <a href="index.html" class="back-link">← Torna alla Home</a>
     
-    <div id="standingsContainer">
-        <div class="loading">Caricamento classifica...</div>
+    <div class="live-banner">
+        <a href="https://www.diretta.it/calcio/italia/serie-a/" target="_blank">
+             Classifica Live su Diretta.it
+        </a>
     </div>
 
-    <script>
-        const API_KEY = 'cdd1a87ea50a411880249e70138e0233';
-        const API_BASE = 'https://api.football-data.org/v4';
-        const SERIE_A_CODE = 'SA';
-        const CAGLIARI_ID = 115;
+    <div class="info-box">
+        <h2> Stagione 2026/27</h2>
+        <p>
+            Il campionato <strong>Serie A Enilive 2026/27</strong> inizia il <strong>23 Agosto 2026</strong>.<br><br>
+            La classifica sarà aggiornata in tempo reale durante la stagione.<br>
+            Clicca il pulsante sopra per seguire la classifica live.
+        </p>
+    </div>
 
-        async function loadStandings() {
-            try {
-                const response = await fetch(`${API_BASE}/competitions/${SERIE_A_CODE}/standings`, {
-                    headers: { 'X-Auth-Token': API_KEY }
-                });
-                const data = await response.json();
-                
-                if (data.standings && data.standings[0]) {
-                    const table = data.standings[0].table;
-                    renderStandings(table);
-                }
-            } catch (error) {
-                document.getElementById('standingsContainer').innerHTML = '<div class="loading">Errore nel caricamento</div>';
-            }
-        }
+    <div class="teams-list">
+        <h3>Le 20 squadre della Serie A 2026/27:</h3>
+        <div>
+            <span class="team-tag">🔴🔵 Cagliari</span>
+            <span class="team-tag">Atalanta</span>
+            <span class="team-tag">Bologna</span>
+            <span class="team-tag">Como</span>
+            <span class="team-tag">Fiorentina</span>
+            <span class="team-tag">Frosinone</span>
+            <span class="team-tag">Genoa</span>
+            <span class="team-tag">Inter</span>
+            <span class="team-tag">Juventus</span>
+            <span class="team-tag">Lazio</span>
+            <span class="team-tag">Lecce</span>
+            <span class="team-tag">Milan</span>
+            <span class="team-tag">Monza</span>
+            <span class="team-tag">Napoli</span>
+            <span class="team-tag">Parma</span>
+            <span class="team-tag">Roma</span>
+            <span class="team-tag">Sassuolo</span>
+            <span class="team-tag">Torino</span>
+            <span class="team-tag">Udinese</span>
+            <span class="team-tag">Venezia</span>
+        </div>
+    </div>
 
-        function renderStandings(table) {
-            let html = '<table class="standings-table">';
-            html += '<tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>S</th><th>Pt</th></tr>';
-            
-            table.forEach((team, index) => {
-                const position = index + 1;
-                const isCagliari = team.team.id === CAGLIARI_ID;
-                let rowClass = '';
-                
-                if (isCagliari) rowClass = 'cagliari';
-                else if (position <= 4) rowClass = 'champions';
-                else if (position <= 6) rowClass = 'europa';
-                else if (position >= 18) rowClass = 'relegation';
-                
-                html += `
-                    <tr class="${rowClass}">
-                        <td class="position">${position}</td>
-                        <td class="team-name">
-                            ${team.team.name}
-                            ${isCagliari ? '<span class="cagliari-badge">CAGLIARI</span>' : ''}
-                        </td>
-                        <td>${team.playedGames}</td>
-                        <td>${team.won}</td>
-                        <td>${team.draw}</td>
-                        <td>${team.lost}</td>
-                        <td class="points">${team.points}</td>
-                    </tr>
-                `;
-            });
-            
-            html += '</table>';
-            
-            html += '<div style="margin-top: 20px; font-size: 12px; color: var(--text-secondary);">';
-            html += '<div style="display: flex; gap: 16px; flex-wrap: wrap;">';
-            html += '<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; background: #00ff88; border-radius: 2px;"></span> Champions League</span>';
-            html += '<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; background: #ffaa00; border-radius: 2px;"></span> Europa League</span>';
-            html += '<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; background: #ff3366; border-radius: 2px;"></span> Retrocessione</span>';
-            html += '</div></div>';
-            
-            document.getElementById('standingsContainer').innerHTML = html;
-        }
-
-        loadStandings();
-        setInterval(loadStandings, 300000);
-    </script>
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--champions);"></div>
+            <span>Champions League (1°-4°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--europa);"></div>
+            <span>Europa League (5°-6°)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--relegation);"></div>
+            <span>Retrocessione (18°-20°)</span>
+        </div>
+    </div>
 </body>
 </html>
