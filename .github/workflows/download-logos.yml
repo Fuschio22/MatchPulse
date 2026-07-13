@@ -32,7 +32,7 @@ jobs:
           curl -sL "https://media.api-sports.io/football/teams/489.png" -o assets/teams/milan.png
           curl -sL "https://media.api-sports.io/football/teams/1579.png" -o assets/teams/monza.png
           curl -sL "https://media.api-sports.io/football/teams/492.png" -o assets/teams/napoli.png
-          curl -sL "https://media.api-sports.io/football/teams/504.png" -o assets/teams/parma.png
+          curl -sL "https://media.api-sports.io/football/teams/523.png" -o assets/teams/parma.png
           curl -sL "https://media.api-sports.io/football/teams/497.png" -o assets/teams/roma.png
           curl -sL "https://media.api-sports.io/football/teams/488.png" -o assets/teams/sassuolo.png
           curl -sL "https://media.api-sports.io/football/teams/503.png" -o assets/teams/torino.png
