@@ -1,0 +1,66 @@
+name: Download Team Logos
+
+on:
+  workflow_dispatch:  # Permette di eseguire manualmente
+
+jobs:
+  download-logos:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Create assets/teams directory
+        run: mkdir -p assets/teams
+        
+      - name: Download team logos
+        run: |
+          # Atalanta
+          curl -L "https://media.api-sports.io/football/teams/499.png" -o assets/teams/atalanta.png
+          # Bologna
+          curl -L "https://media.api-sports.io/football/teams/500.png" -o assets/teams/bologna.png
+          # Cagliari
+          curl -L "https://media.api-sports.io/football/teams/490.png" -o assets/teams/cagliari.png
+          # Como
+          curl -L "https://media.api-sports.io/football/teams/511.png" -o assets/teams/como.png
+          # Fiorentina
+          curl -L "https://media.api-sports.io/football/teams/502.png" -o assets/teams/fiorentina.png
+          # Frosinone
+          curl -L "https://media.api-sports.io/football/teams/512.png" -o assets/teams/frosinone.png
+          # Genoa
+          curl -L "https://media.api-sports.io/football/teams/495.png" -o assets/teams/genoa.png
+          # Inter
+          curl -L "https://media.api-sports.io/football/teams/505.png" -o assets/teams/inter.png
+          # Juventus
+          curl -L "https://media.api-sports.io/football/teams/496.png" -o assets/teams/juventus.png
+          # Lazio
+          curl -L "https://media.api-sports.io/football/teams/487.png" -o assets/teams/lazio.png
+          # Lecce
+          curl -L "https://media.api-sports.io/football/teams/867.png" -o assets/teams/lecce.png
+          # Milan
+          curl -L "https://media.api-sports.io/football/teams/489.png" -o assets/teams/milan.png
+          # Monza
+          curl -L "https://media.api-sports.io/football/teams/1579.png" -o assets/teams/monza.png
+          # Napoli
+          curl -L "https://media.api-sports.io/football/teams/492.png" -o assets/teams/napoli.png
+          # Parma
+          curl -L "https://media.api-sports.io/football/teams/506.png" -o assets/teams/parma.png
+          # Roma
+          curl -L "https://media.api-sports.io/football/teams/497.png" -o assets/teams/roma.png
+          # Sassuolo
+          curl -L "https://media.api-sports.io/football/teams/488.png" -o assets/teams/sassuolo.png
+          # Torino
+          curl -L "https://media.api-sports.io/football/teams/503.png" -o assets/teams/torino.png
+          # Udinese
+          curl -L "https://media.api-sports.io/football/teams/494.png" -o assets/teams/udinese.png
+          # Venezia
+          curl -L "https://media.api-sports.io/football/teams/517.png" -o assets/teams/venezia.png
+          
+      - name: Commit and push logos
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add assets/teams/
+          git commit -m "🎨 Download team logos from API-Football" || echo "No changes to commit"
+          git push
