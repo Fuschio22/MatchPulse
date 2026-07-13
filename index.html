@@ -65,14 +65,13 @@
         <div class="next-match-label">Giornata 1 - Prossima Partita</div>
         <div class="next-match-teams">
             <div class="team">
-                <!-- USA IL FILE LOCALE SCARICATO DALL'ACTION -->
-                <img class="team-logo" src="assets/teams/parma-new.png" alt="Parma" onerror="this.src='data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23c8102e\'/><text x=\'50\' y=\'57\' font-size=\'30\' text-anchor=\'middle\' fill=\'white\'>⚽</text></svg>')">
+                <!-- LINK DIRETTO WIKIMEDIA CON CACHE-BUSTER ESTREMO -->
+                <img class="team-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Parma_Calcio_1913.svg/1200px-Parma_Calcio_1913.svg.png?v=99" alt="Parma" onerror="this.src='data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23c8102e\'/><text x=\'50\' y=\'57\' font-size=\'30\' text-anchor=\'middle\' fill=\'white\'>⚽</text></svg>')">
                 <div class="team-name">Parma</div>
             </div>
             <div class="vs">VS</div>
             <div class="team">
-                <!-- USA IL FILE LOCALE SCARICATO DALL'ACTION -->
-                <img class="team-logo" src="assets/teams/cagliari.png?v=4" alt="Cagliari" onerror="this.src='data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23c8102e\'/><text x=\'50\' y=\'57\' font-size=\'30\' text-anchor=\'middle\' fill=\'white\'>⚽</text></svg>')">
+                <img class="team-logo" src="assets/teams/cagliari.png?v=99" alt="Cagliari" onerror="this.src='data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><circle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23c8102e\'/><text x=\'50\' y=\'57\' font-size=\'30\' text-anchor=\'middle\' fill=\'white\'>⚽</text></svg>')">
                 <div class="team-name">Cagliari</div>
             </div>
         </div>
@@ -99,16 +98,15 @@
     <script>
         const defaultLogo = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#c8102e" stroke="#003da5" stroke-width="3"/><text x="50" y="57" font-size="30" text-anchor="middle" fill="white" font-weight="bold">⚽</text></svg>');
         
-        // TUTTI I LOGHI PUNTANO AI FILE LOCALI SCARICATI DALL'ACTION
         const teamLogos = {
-            "Atalanta": "assets/teams/atalanta.png?v=4", "Bologna": "assets/teams/bologna.png?v=4", "Cagliari": "assets/teams/cagliari.png?v=4",
-            "Como": "assets/teams/como.png?v=4", "Fiorentina": "assets/teams/fiorentina.png?v=4", "Frosinone": "assets/teams/frosinone.png?v=4",
-            "Genoa": "assets/teams/genoa.png?v=4", "Inter": "assets/teams/inter.png?v=4", "Juventus": "assets/teams/juventus.png?v=4",
-            "Lazio": "assets/teams/lazio.png?v=4", "Lecce": "assets/teams/lecce.png?v=4", "Milan": "assets/teams/milan.png?v=4",
-            "Monza": "assets/teams/monza.png?v=4", "Napoli": "assets/teams/napoli.png?v=4", 
-            "Parma": "assets/teams/parma-new.png", 
-            "Roma": "assets/teams/roma.png?v=4", "Sassuolo": "assets/teams/sassuolo.png?v=4", "Torino": "assets/teams/torino.png?v=4",
-            "Udinese": "assets/teams/udinese.png?v=4", "Venezia": "assets/teams/venezia.png?v=4"
+            "Atalanta": "assets/teams/atalanta.png?v=99", "Bologna": "assets/teams/bologna.png?v=99", "Cagliari": "assets/teams/cagliari.png?v=99",
+            "Como": "assets/teams/como.png?v=99", "Fiorentina": "assets/teams/fiorentina.png?v=99", "Frosinone": "assets/teams/frosinone.png?v=99",
+            "Genoa": "assets/teams/genoa.png?v=99", "Inter": "assets/teams/inter.png?v=99", "Juventus": "assets/teams/juventus.png?v=99",
+            "Lazio": "assets/teams/lazio.png?v=99", "Lecce": "assets/teams/lecce.png?v=99", "Milan": "assets/teams/milan.png?v=99",
+            "Monza": "assets/teams/monza.png?v=99", "Napoli": "assets/teams/napoli.png?v=99", 
+            "Parma": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Parma_Calcio_1913.svg/1200px-Parma_Calcio_1913.svg.png?v=99", 
+            "Roma": "assets/teams/roma.png?v=99", "Sassuolo": "assets/teams/sassuolo.png?v=99", "Torino": "assets/teams/torino.png?v=99",
+            "Udinese": "assets/teams/udinese.png?v=99", "Venezia": "assets/teams/venezia.png?v=99"
         };
 
         const FIRST_MATCH = new Date('2026-08-23T20:45:00');
